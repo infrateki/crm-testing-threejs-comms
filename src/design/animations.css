@@ -1,0 +1,140 @@
+/* ─────────────────────────────────────────────────────────
+   BIMSEARCH Animation System
+   All keyframes, transitions, and stagger utilities.
+   ───────────────────────────────────────────────────────── */
+
+/* ── Keyframes ─────────────────────────────────────────── */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+@keyframes pulseSubtle {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ── Entrance utilities ─────────────────────────────────── */
+
+.anim-fade-in-up {
+  animation: fadeInUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.anim-fade-in {
+  animation: fadeIn 0.3s ease both;
+}
+
+.anim-slide-in-right {
+  animation: slideInRight 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.anim-scale-in {
+  animation: scaleIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.anim-pulse-subtle {
+  animation: pulseSubtle 1.8s ease-in-out infinite;
+}
+
+/* ── Stagger children ──────────────────────────────────── */
+/* Parent: class="stagger-container", children: class="stagger-child"
+   Set --index on each child for offset.
+   e.g. <div class="stagger-child" style="--index: 0">…</div> */
+
+.stagger-container > .stagger-child {
+  animation: fadeInUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--index, 0) * 80ms);
+}
+
+/* ── Shimmer skeleton ──────────────────────────────────── */
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--bg-warm) 0%,
+    #ece9e1 40%,
+    var(--bg-warm) 80%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+/* ── Page transitions (Framer Motion variants reference) ─ */
+/* Used in App.tsx AnimatePresence — variants defined in TS,
+   but easing tokens documented here for consistency. */
+
+/* page-enter:  initial: { opacity:0, y:12 }
+   page-animate: animate: { opacity:1, y:0, transition: { duration:0.3, ease:[0.22,1,0.36,1] } }
+   page-exit:  exit: { opacity:0, y:-8, transition: { duration:0.2 } } */
+
+/* ── Deadline urgency ──────────────────────────────────── */
+
+.deadline-urgent {
+  animation: pulseSubtle 1.4s ease-in-out infinite;
+  color: #DC2626;
+}
+
+/* ── Card hover transition ─────────────────────────────── */
+
+.card-hover-lift {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.card-hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.09);
+}
+
+/* ── Responsive: reduce motion ─────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

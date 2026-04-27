@@ -1,8 +1,8 @@
 # COMMS.md — Terminal Orchestration Board
 ## BIMSEARCH Command Center
 
-**Last updated:** April 27, 2026 · by T5
-**Status:** 🟡 IN PROGRESS
+**Last updated:** April 27, 2026 · by Integration Verifier
+**Status:** ✅ INTEGRATION COMPLETE
 **Repo:** https://github.com/infrateki/crm-testing-threejs-comms.git
 
 ---
@@ -26,7 +26,8 @@ Each Claude Code terminal MUST:
 | Data Layer + API Server | T2 | ✅ DONE | 2026-04-27 | tsc clean (T2 files); server deps need installing |
 | Ink Engine + Three.js | T3 | ✅ DONE | 2026-04-27 | tsc ✅ build ✅ — ink engine, Three.js parallax, procedural scenes |
 | Views + Cards | T4 | ✅ DONE | 2026-04-27 | tsc ✅ build ✅ — all 6 views, 3 card types, stats |
-| Export + Polish + Tests | T5 | 🟡 IN PROGRESS | 2026-04-27 | P26–P33 in progress |
+| Export + Polish + Tests | T5 | ✅ DONE | 2026-04-27 | P26–P33 complete |
+| **Integration** | **Verifier** | **✅ DONE** | **2026-04-27** | **tsc ✅ build ✅ lint ✅ tests 48/48 ✅** |
 
 ---
 
@@ -444,6 +445,39 @@ FILES CREATED:
   tests/e2e/processor.spec.ts — upload, process, before/after render
 ```
 
+### INTEGRATION VERIFIER
+```
+2026-04-27 INTEGRATION PASS COMPLETE
+
+Checks performed:
+  npm run build         ✅ (zero errors; Three.js chunk ~815 kB gzipped 219 kB — expected)
+  npx tsc --noEmit      ✅ (zero type errors across all 92 source files)
+  npm run lint          ✅ (zero warnings — added eslint.config.js for ESLint v9 flat config;
+                           suppressed react-refresh false-positive in ErrorBoundary)
+  npm run test          ✅ 48/48 unit tests pass
+                           scoring.test.ts (24), ink-processor.test.ts (16), layer-splitter.test.ts (8)
+  Dev server            ✅ starts on port 5173/5174, serves correct BIMSEARCH HTML
+
+Fixes applied:
+  1. Created eslint.config.js (ESLint v9 flat config — was missing, lint was crashing)
+  2. Installed @eslint/js + typescript-eslint devDeps
+  3. Added eslint-disable-next-line for ErrorBoundary internal components (react-refresh FP)
+  4. Added vite.config.ts manualChunks (three-vendor, react-vendor, motion-vendor, query-vendor)
+     to eliminate 831 kB monolith and eliminate chunk size warnings beyond Three.js itself
+
+Integration notes:
+  - Dev server confirmed at http://localhost:5174 (5173 occupied by another project)
+  - IllustrationViewer mobile detection: navigator.userAgent + window.innerWidth < 768 ✅
+  - Three.js frameloop="demand" only renders on mouse events ✅
+  - Web Worker emitted as separate chunk: processor.worker-*.js ✅
+  - All 7 routes lazy-loaded ✅
+  - All imports resolve — no missing modules ✅
+
+Outstanding (non-blocking):
+  - Server packages (fastify, pg, etc.) still not in package.json — frontend unaffected
+  - E2E tests require running dev server; not run in this pass (unit tests cover logic)
+```
+
 ### ORCHESTRATOR
 ```
 2026-04-27: Project decomposed into T1–T5. CLAUDE.md and COMMS.md created.
@@ -456,12 +490,13 @@ FILES CREATED:
 ## BLOCKERS
 
 ```
-[T2 → T1/Orchestrator] Server packages not in package.json. T1 owns package.json.
+[OPEN] Server packages not in package.json.
   Add: fastify @fastify/cors @fastify/websocket @fastify/multipart pg @types/pg
-  Server won't start without these. Frontend (tsc/vite) unaffected.
+  Frontend (tsc/vite/tests) unaffected. Server won't start without these.
 
-[RESOLVED — T5] Merge conflict in COMMS.md, .claude/settings.local.json, tsconfig.tsbuildinfo
-  resolved on t5/export-polish branch.
+[RESOLVED] ESLint v9 flat config missing — fixed by Integration Verifier (eslint.config.js added)
+[RESOLVED] ErrorBoundary react-refresh lint warning — suppressed with eslint-disable-next-line
+[RESOLVED] T5 merge conflicts on COMMS.md/tsconfig.tsbuildinfo
 ```
 
 ---
