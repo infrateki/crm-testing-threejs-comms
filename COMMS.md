@@ -24,8 +24,9 @@ Each Claude Code terminal MUST:
 |---|---|---|---|---|
 | Foundation + Design System | T1 | ✅ DONE | 2026-04-27 | Build passes, all exports ready |
 | Data Layer + API Server | T2 | ✅ DONE | 2026-04-27 | tsc clean (T2 files); server deps need installing |
-| Ink Engine + Three.js | T3 | ⬜ TODO | | |
-| Views + Cards | T4 | ⬜ TODO | | Depends on T1, T2, T3 |
+<<<<<<< HEAD
+| Ink Engine + Three.js | T3 | ✅ DONE | 2026-04-27 | tsc ✅ build ✅ — ink engine, Three.js parallax, procedural scenes |
+| Views + Cards | T4 | ✅ DONE | 2026-04-27 | tsc ✅ build ✅ — all 6 views, 3 card types, stats |
 | Export + Polish + Tests | T5 | ⬜ TODO | | Depends on T3, T4 |
 
 ---
@@ -45,20 +46,20 @@ Each Claude Code terminal MUST:
 | P9 | Fastify server: REST endpoints, DB pool, SQL queries | T2 | ✅ DONE | server/* |
 | P10 | WebSocket handler for real-time pipeline updates | T2 | ✅ DONE | server/ws/*, src/api/websocket.ts |
 | P11 | Utility functions: format.ts, scoring.ts | T2 | ✅ DONE | src/utils/format.ts, src/utils/scoring.ts |
-| P12 | InkSketchProcessor: grayscale, blur, Sobel, threshold, line-weight, hatching, paper composite | T3 | ⬜ TODO | src/engine/ink-processor/* |
-| P13 | Web Worker wrapper for ink processing | T3 | ⬜ TODO | src/engine/ink-processor/processor.worker.ts |
-| P14 | Layer splitter with alpha-feathered masks | T3 | ⬜ TODO | src/engine/layer-splitter/* |
-| P15 | Three.js R3F components: ParallaxScene, DepthLayer, ParallaxController, IllustrationViewer | T3 | ⬜ TODO | src/components/three/* |
-| P16 | Procedural illustration generator: 5 scene types + 5 primitives | T3 | ⬜ TODO | src/engine/procedural/* |
-| P17 | 3 ink presets (ink-heavy, ink-light, ink-architectural) | T3 | ⬜ TODO | src/engine/ink-processor/presets.ts |
-| P18 | StatsBar + StatValue + CountUp components | T4 | ⬜ TODO | src/components/stats/* |
-| P19 | OpportunityCard (compact grid), HeroSplitCard (detail), CompactKanbanCard (kanban) | T4 | ⬜ TODO | src/components/cards/OpportunityCard.tsx, HeroSplitCard.tsx, CompactKanbanCard.tsx |
-| P20 | Dashboard view: KPI stats, hero card, deadlines, scan status, team workload | T4 | ⬜ TODO | src/views/Dashboard.tsx |
-| P21 | Showcase view: responsive card grid, filters, search, sort, staggered animations | T4 | ⬜ TODO | src/views/Showcase.tsx |
-| P22 | OpportunityDetail view: hero-split + tabs (contacts/docs/actions/timeline) | T4 | ⬜ TODO | src/views/OpportunityDetail.tsx |
-| P23 | Pipeline kanban: 7 columns, drag-drop, optimistic update, owner filter | T4 | ⬜ TODO | src/views/Pipeline.tsx |
-| P24 | InkProcessor view: file upload, live preview, controls, pipeline visualization | T4 | ⬜ TODO | src/views/InkProcessor.tsx |
-| P25 | PortalHealth view: status table with color-coded rows | T4 | ⬜ TODO | src/views/PortalHealth.tsx |
+| P12 | InkSketchProcessor: grayscale, blur, Sobel, threshold, line-weight, hatching, paper composite | T3 | ✅ DONE | src/engine/ink-processor/* |
+| P13 | Web Worker wrapper for ink processing | T3 | ✅ DONE | src/engine/ink-processor/processor.worker.ts |
+| P14 | Layer splitter with alpha-feathered masks | T3 | ✅ DONE | src/engine/layer-splitter/* |
+| P15 | Three.js R3F components: ParallaxScene, DepthLayer, ParallaxController, IllustrationViewer | T3 | ✅ DONE | src/components/three/* |
+| P16 | Procedural illustration generator: 5 scene types + 5 primitives | T3 | ✅ DONE | src/engine/procedural/* |
+| P17 | 3 ink presets (ink-heavy, ink-light, ink-architectural) | T3 | ✅ DONE | src/engine/ink-processor/presets.ts |
+| P18 | StatsBar + StatValue + CountUp components | T4 | ✅ DONE | src/components/stats/* |
+| P19 | OpportunityCard (compact grid), HeroSplitCard (detail), CompactKanbanCard (kanban) | T4 | ✅ DONE | src/components/cards/OpportunityCard.tsx, HeroSplitCard.tsx, CompactKanbanCard.tsx |
+| P20 | Dashboard view: KPI stats, hero card, deadlines, scan status, team workload | T4 | ✅ DONE | src/views/Dashboard.tsx |
+| P21 | Showcase view: responsive card grid, filters, search, sort, staggered animations | T4 | ✅ DONE | src/views/Showcase.tsx |
+| P22 | OpportunityDetail view: hero-split + tabs (contacts/docs/actions/timeline) | T4 | ✅ DONE | src/views/OpportunityDetail.tsx |
+| P23 | Pipeline kanban: 7 columns, drag-drop, optimistic update, owner filter | T4 | ✅ DONE | src/views/Pipeline.tsx |
+| P24 | InkProcessor view: file upload, live preview, controls, pipeline visualization | T4 | ✅ DONE | src/views/InkProcessor.tsx |
+| P25 | PortalHealth view: status table with color-coded rows | T4 | ✅ DONE | src/views/PortalHealth.tsx |
 | P26 | CardExporter: PNG from Three.js + text overlay, SVG with embedded illustration | T5 | ⬜ TODO | src/components/cards/CardExporter.tsx, src/utils/export.ts |
 | P27 | CardBuilder view: manual card creation from data | T5 | ⬜ TODO | src/views/CardBuilder.tsx |
 | P28 | Photo upload flow: file picker → process → save → update Three.js scene | T5 | ⬜ TODO | (coordinates across T3 engine + T4 views) |
@@ -321,12 +322,102 @@ EXPORTS AVAILABLE FOR T3–T5:
 
 ### T3 — Ink Engine + Three.js
 ```
-[Timestamp entries added by T3 as it works]
+2026-04-27 STARTED: T3 ink engine + Three.js
+2026-04-27 DONE: P12–P17 complete. tsc --noEmit ✅  npm run build ✅
+
+EXPORTS AVAILABLE FOR T4–T5:
+
+  src/engine/ink-processor/InkSketchProcessor.ts
+    - InkSketchProcessor class
+      .process(image, config) → Promise<ProcessorResult>
+      .processWithIntermediates(image, config) → Promise<ProcessorResult>
+      .dispose()
+
+  src/engine/ink-processor/types.ts
+    - ProcessorConfig, ProcessorResult, LayerOutput, WorkerRequest, WorkerResponse
+    - LineWeight = 'heavy' | 'medium' | 'light'
+
+  src/engine/ink-processor/presets.ts
+    - PRESETS: { 'ink-heavy', 'ink-light', 'ink-architectural' }
+    - PresetName
+
+  src/engine/layer-splitter/LayerSplitter.ts
+    - LayerSplitter class
+      .split(source: HTMLCanvasElement | ImageData) → LayerOutput[]
+    - 3 layers: background (depth=10, factor=0.3), midground (depth=5, factor=0.8), foreground (depth=1, factor=1.5)
+
+  src/engine/procedural/SceneGenerator.ts
+    - SceneGenerator class (new SceneGenerator(width?, height?))
+      .generate(geographyTag) → { canvas, dataURL, sceneType }
+    - Tags: 'mia'|'miami' → terminal-curved, 'federal'|'sam'|'usace' → federal-building,
+            'dfw'|'dallas' → wide-terminal, 'lga'|'new-york' → modern-angular,
+            'mco'|'orlando' → curved-tower
+
+  src/components/three/IllustrationViewer.tsx
+    - IllustrationViewer (forwardRef) — primary consumer component
+    - Props: { data: IllustrationData, width?, height?, style? }
+    - IllustrationData: { id, illustration_url?, geography_tag? }
+    - Ref: IllustrationViewerHandle → getCanvas() for T5 export
+    - Mobile auto-detects and skips Three.js, renders static img
+
+  src/components/three/ParallaxScene.tsx
+    - ParallaxScene({ layers: LayerOutput[], intensity?, style? })
+    - Orthographic R3F Canvas, frameloop="demand", dpr capped at 2
+
+  src/components/three/DepthLayer.tsx
+    - DepthLayer({ dataURL, depth, parallaxFactor, mouseRef, intensity? })
+
+  src/components/three/ParallaxController.tsx
+    - ParallaxController({ containerRef, onInvalidate, children })
+    - ParallaxControllerHandle, MouseState
 ```
 
 ### T4 — Views + Cards
 ```
-[Timestamp entries added by T4 as it works]
+2026-04-27 STARTED: T4 views + cards build (branch: t4/views-cards)
+2026-04-27 DONE: P18–P25 complete. tsc --noEmit ✅  npm run build ✅
+
+EXPORTS AVAILABLE FOR T5:
+
+  src/components/stats/StatsBar.tsx
+    - StatsBar({ stats: StatItem[], theme?: 'light' | 'cream' })
+
+  src/components/stats/StatValue.tsx
+    - StatValue({ value, label }: StatItem)
+
+  src/components/stats/CountUp.tsx
+    - CountUp({ target, label?, duration?, prefix?, suffix?, decimals? })
+    - Animates 0→target on IntersectionObserver entry
+
+  src/components/cards/OpportunityCard.tsx
+    - OpportunityCard({ opportunity: Opportunity, onClick? })
+    - Uses IllustrationViewer({ data: { id, geography_tag } })
+    - 380px min-width, hover scale + shadow
+
+  src/components/cards/HeroSplitCard.tsx
+    - HeroSplitCard({ opportunity, config?, onUploadPhoto? })
+    - 50/50 grid: IllustrationViewer left, content right
+    - StatsBar below
+
+  src/components/cards/CompactKanbanCard.tsx
+    - CompactKanbanCard({ opportunity, onClick?, isDragging? })
+    - isDragging: elevated shadow + rotation
+
+  src/views/Dashboard.tsx — / route
+  src/views/Showcase.tsx — /showcase route
+  src/views/OpportunityDetail.tsx — /opportunities/:id route
+  src/views/Pipeline.tsx — /pipeline route (7-col kanban, drag-drop)
+  src/views/InkProcessor.tsx — /processor route
+  src/views/PortalHealth.tsx — /portals route
+  src/views/_fixtures.ts — DEMO_OPPORTUNITIES, DEMO_KPI, DEMO_DEADLINES, DEMO_PORTALS
+
+NOTES FOR T5:
+  - OpportunityDetail has CardExporter placeholder (T5 owns CardExporter)
+  - IllustrationViewer ref (IllustrationViewerHandle) exposed on HeroSplitCard — T5 can
+    use forwardRef wrapper to capture canvas for PNG export
+  - All views fall back to demo data when API unavailable
+  - InkProcessor uses ProcessorConfig.lineWeight ('heavy'|'medium'|'light') — not preset string
+  - Pipeline kanban excludes 'submitted' and 'dismissed' statuses from PIPELINE_STAGES
 ```
 
 ### T5 — Export + Polish + Tests
