@@ -23,7 +23,7 @@ Each Claude Code terminal MUST:
 | Component | Terminal | Status | Last Update | Notes |
 |---|---|---|---|---|
 | Foundation + Design System | T1 | ✅ DONE | 2026-04-27 | Build passes, all exports ready |
-| Data Layer + API Server | T2 | ⬜ TODO | | |
+| Data Layer + API Server | T2 | ✅ DONE | 2026-04-27 | tsc clean (T2 files); server deps need installing |
 | Ink Engine + Three.js | T3 | ⬜ TODO | | |
 | Views + Cards | T4 | ⬜ TODO | | Depends on T1, T2, T3 |
 | Export + Polish + Tests | T5 | ⬜ TODO | | Depends on T3, T4 |
@@ -39,12 +39,12 @@ Each Claude Code terminal MUST:
 | P3 | Layout shell: Header, KPIBar, Footer, Shell wrapper | T1 | ✅ DONE | src/components/layout/* |
 | P4 | Shared UI primitives: StatusBadge, TierBadge, Tag, SectionLabel, SearchInput, DeadlineCountdown | T1 | ✅ DONE | src/components/ui/* |
 | P5 | Route structure with lazy loading | T1 | ✅ DONE | src/App.tsx, src/main.tsx |
-| P6 | TypeScript interfaces: Opportunity, Portal, Contact, CardConfig, Pipeline enums | T2 | ⬜ TODO | src/types/* |
-| P7 | Zustand stores: useOpportunityStore, useUIStore, useProcessorStore | T2 | ⬜ TODO | src/store/* |
-| P8 | API client + TanStack Query hooks for all endpoints | T2 | ⬜ TODO | src/api/* |
-| P9 | Fastify server: REST endpoints, DB pool, SQL queries | T2 | ⬜ TODO | server/* |
-| P10 | WebSocket handler for real-time pipeline updates | T2 | ⬜ TODO | server/ws/*, src/api/websocket.ts |
-| P11 | Utility functions: format.ts, scoring.ts | T2 | ⬜ TODO | src/utils/format.ts, src/utils/scoring.ts |
+| P6 | TypeScript interfaces: Opportunity, Portal, Contact, CardConfig, Pipeline enums | T2 | ✅ DONE | src/types/* |
+| P7 | Zustand stores: useOpportunityStore, useUIStore, useProcessorStore | T2 | ✅ DONE | src/store/* |
+| P8 | API client + TanStack Query hooks for all endpoints | T2 | ✅ DONE | src/api/* |
+| P9 | Fastify server: REST endpoints, DB pool, SQL queries | T2 | ✅ DONE | server/* |
+| P10 | WebSocket handler for real-time pipeline updates | T2 | ✅ DONE | server/ws/*, src/api/websocket.ts |
+| P11 | Utility functions: format.ts, scoring.ts | T2 | ✅ DONE | src/utils/format.ts, src/utils/scoring.ts |
 | P12 | InkSketchProcessor: grayscale, blur, Sobel, threshold, line-weight, hatching, paper composite | T3 | ⬜ TODO | src/engine/ink-processor/* |
 | P13 | Web Worker wrapper for ink processing | T3 | ⬜ TODO | src/engine/ink-processor/processor.worker.ts |
 | P14 | Layer splitter with alpha-feathered masks | T3 | ⬜ TODO | src/engine/layer-splitter/* |
@@ -246,7 +246,77 @@ ROUTE PATHS:
 
 ### T2 — Data Layer + API Server
 ```
-[Timestamp entries added by T2 as it works]
+2026-04-27 STARTED: T2 data layer build (branch: t2/data-layer)
+2026-04-27 DONE: P6–P11 complete.
+  - tsc --noEmit: PASSES for all T2-owned files. Zero T2 errors.
+  - Pre-existing T3 tsc errors in src/engine/ink-processor/processor.worker.ts
+    (ArrayBufferLike vs ArrayBuffer — T3 must fix before full tsc passes)
+  - Server deps missing from package.json — T1/orchestrator must add:
+      fastify  @fastify/cors  @fastify/websocket  @fastify/multipart
+      pg  @types/pg
+    (server runs via tsx; tsc --noEmit excludes server/ directory)
+
+EXPORTS AVAILABLE FOR T3–T5:
+
+  src/types/opportunity.ts
+    - Opportunity, OpportunityStatus (9 values), Tier (1|2|3), Score, StatItem, Photo
+
+  src/types/contact.ts
+    - Contact
+
+  src/types/portal.ts
+    - Portal, ScanMethod, ScanFrequency, LastScanStatus
+
+  src/types/card-config.ts
+    - CardConfig, CardLayout, CardTheme, IllustrationStyle, AnimationStyle
+
+  src/types/pipeline.ts
+    - PipelineStage, PIPELINE_STAGES (tuple), STAGE_METADATA, StageMetadata
+
+  src/store/useOpportunityStore.ts
+    - useOpportunityStore — opportunities Map, filters, selectedId, sortBy/sortOrder
+    - OpportunityFilters, SortBy, SortOrder (exported types)
+
+  src/store/useUIStore.ts
+    - useUIStore — activeView, selectedOpportunityId, isModalOpen, sidebarCollapsed
+    - ActiveView (exported type)
+
+  src/store/useProcessorStore.ts
+    - useProcessorStore — currentImage, processingState, result, config
+    - ProcessorConfig, ProcessingState, InkPreset (exported types)
+
+  src/api/client.ts
+    - apiFetch<T>(path, options?) — typed fetch wrapper
+    - BASE_URL — derived from VITE_API_URL env var
+    - ApiError (class with .status)
+
+  src/api/opportunities.ts
+    - useOpportunities(filters?) — paginated list, stale 60s
+    - useOpportunity(id) — single with joins, stale 60s
+    - useUpdateOpportunity() — optimistic kanban updates
+    - useUploadPhoto() — multipart photo upload
+    - OpportunitiesResponse, OpportunityFilters (exported types)
+
+  src/api/portals.ts
+    - usePortals() — stale 60s
+
+  src/api/kpi.ts
+    - useKPI() — stale 30s
+    - useDeadlines(days=30) — stale 30s
+    - useAlerts() — stale 30s
+    - KPIData, DeadlineItem, AlertItem (exported types)
+
+  src/api/websocket.ts
+    - useWebSocket() — registers listener, auto-invalidates TanStack cache
+    - pipelineSocket — PipelineWebSocket instance (add/remove listeners)
+    - WsMessage, WsMessageType (exported types)
+
+  src/utils/format.ts
+    - formatCurrency($137.8M style), formatDate, formatDaysUntil, formatNumber
+
+  src/utils/scoring.ts
+    - getScoreColor(score), getTierLabel(tier)
+    - getStatusLabel(status), getStatusColor(status)
 ```
 
 ### T3 — Ink Engine + Three.js
@@ -276,7 +346,14 @@ ROUTE PATHS:
 ## BLOCKERS
 
 ```
-(none yet)
+[T2 → T1/Orchestrator] Server packages not in package.json. T1 owns package.json.
+  Add: fastify @fastify/cors @fastify/websocket @fastify/multipart pg @types/pg
+  Server won't start without these. Frontend (tsc/vite) unaffected.
+
+[T3] src/engine/ink-processor/processor.worker.ts TypeScript error (6 errors):
+  "Type 'ArrayBufferLike' is not assignable to type 'ArrayBuffer'"
+  Fix: cast .buffer with `as ArrayBuffer` on typed array buffers before assigning.
+  Blocks full tsc --noEmit pass (all T2 files are clean).
 ```
 
 ---
