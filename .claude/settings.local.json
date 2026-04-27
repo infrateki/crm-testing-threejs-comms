@@ -14,7 +14,8 @@
       "Bash(rm .gitignore *)",
       "Bash(grep -E '\\\\.\\(ts|tsx|json\\)$')",
       "Bash(git cherry-pick *)",
-      "Bash(git reset *)"
+      "Bash(git reset *)",
+      "Bash(git stash *)"
     ]
   }
 }
