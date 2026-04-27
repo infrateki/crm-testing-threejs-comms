@@ -1,0 +1,125 @@
+/* CSS Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Design tokens as CSS custom properties */
+:root {
+  /* Backgrounds */
+  --bg-primary: #ffffff;
+  --bg-cream: #faf8f3;
+  --bg-warm: #f5f3ef;
+  --bg-card: #fafafa;
+
+  /* Ink colors */
+  --ink-primary: #1a1a1a;
+  --ink-secondary: #4b5563;
+  --ink-tertiary: #6b7280;
+  --ink-muted: #9ca3af;
+  --ink-ghost: #d1d5db;
+
+  /* Accent colors */
+  --accent-slate: #2c3e50;
+  --accent-steel: #34495e;
+  --accent-sage: #5c7c6b;
+
+  /* Status colors */
+  --status-tracking: #6b7280;
+  --status-pursuing: #2563eb;
+  --status-submitted: #d97706;
+  --status-won: #059669;
+  --status-lost: #dc2626;
+
+  /* Kanban stage colors */
+  --stage-radar: #94a3b8;
+  --stage-qualified: #8b5cf6;
+  --stage-jorge-review: #f59e0b;
+  --stage-contact: #3b82f6;
+  --stage-proposal: #6366f1;
+  --stage-won: #059669;
+  --stage-lost: #ef4444;
+
+  /* Borders */
+  --border: #e5e7eb;
+  --border-subtle: #f3f4f6;
+
+  /* Typography */
+  --font-headline: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Spacing */
+  --content-padding: 40px;
+  --grid-gap: 24px;
+  --section-spacing: 32px;
+
+  /* Card */
+  --card-radius: 3px;
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+/* Base styles */
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--ink-primary);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Selection */
+::selection {
+  background-color: var(--accent-slate);
+  color: #ffffff;
+}
+
+/* Links */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Images */
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* Inputs */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+/* Remove list styles */
+ul,
+ol {
+  list-style: none;
+}
+
+/* Responsive content padding */
+@media (max-width: 768px) {
+  :root {
+    --content-padding: 24px;
+  }
+}
+
+@media (max-width: 375px) {
+  :root {
+    --content-padding: 16px;
+  }
+}

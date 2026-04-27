@@ -1,7 +1,7 @@
 # COMMS.md — Terminal Orchestration Board
 ## BIMSEARCH Command Center
 
-**Last updated:** April 27, 2026 · by Orchestrator
+**Last updated:** April 27, 2026 · by T1
 **Status:** 🟡 IN PROGRESS
 **Repo:** https://github.com/infrateki/crm-testing-threejs-comms.git
 
@@ -22,7 +22,7 @@ Each Claude Code terminal MUST:
 
 | Component | Terminal | Status | Last Update | Notes |
 |---|---|---|---|---|
-| Foundation + Design System | T1 | ⬜ TODO | | |
+| Foundation + Design System | T1 | ✅ DONE | 2026-04-27 | Build passes, all exports ready |
 | Data Layer + API Server | T2 | ⬜ TODO | | |
 | Ink Engine + Three.js | T3 | ⬜ TODO | | |
 | Views + Cards | T4 | ⬜ TODO | | Depends on T1, T2, T3 |
@@ -34,11 +34,11 @@ Each Claude Code terminal MUST:
 
 | # | Task | Owner | Status | File(s) |
 |---|---|---|---|---|
-| P1 | Project scaffold (Vite+React+TS), install ALL deps | T1 | ⬜ TODO | package.json, vite.config.ts, tsconfig.json, index.html |
-| P2 | Design system: CSS reset, tokens, font loading, CSS vars | T1 | ⬜ TODO | src/design/* |
-| P3 | Layout shell: Header, KPIBar, Footer, Shell wrapper | T1 | ⬜ TODO | src/components/layout/* |
-| P4 | Shared UI primitives: StatusBadge, TierBadge, Tag, SectionLabel, SearchInput, DeadlineCountdown | T1 | ⬜ TODO | src/components/ui/* |
-| P5 | Route structure with lazy loading | T1 | ⬜ TODO | src/App.tsx, src/main.tsx |
+| P1 | Project scaffold (Vite+React+TS), install ALL deps | T1 | ✅ DONE | package.json, vite.config.ts, tsconfig.json, index.html |
+| P2 | Design system: CSS reset, tokens, font loading, CSS vars | T1 | ✅ DONE | src/design/* |
+| P3 | Layout shell: Header, KPIBar, Footer, Shell wrapper | T1 | ✅ DONE | src/components/layout/* |
+| P4 | Shared UI primitives: StatusBadge, TierBadge, Tag, SectionLabel, SearchInput, DeadlineCountdown | T1 | ✅ DONE | src/components/ui/* |
+| P5 | Route structure with lazy loading | T1 | ✅ DONE | src/App.tsx, src/main.tsx |
 | P6 | TypeScript interfaces: Opportunity, Portal, Contact, CardConfig, Pipeline enums | T2 | ⬜ TODO | src/types/* |
 | P7 | Zustand stores: useOpportunityStore, useUIStore, useProcessorStore | T2 | ⬜ TODO | src/store/* |
 | P8 | API client + TanStack Query hooks for all endpoints | T2 | ⬜ TODO | src/api/* |
@@ -192,7 +192,56 @@ SHARED (coordinate writes via COMMS.md):
 
 ### T1 — Foundation + Design System
 ```
-[Timestamp entries added by T1 as it works]
+2026-04-27 STARTED: T1 foundation scaffold
+2026-04-27 DONE: P1–P5 complete. Build: tsc --noEmit ✅, npm run build ✅
+
+EXPORTS AVAILABLE FOR T2–T5:
+  src/design/tokens.ts
+    - colors (bg, ink, accent, status, stage, border)
+    - typography (fonts, scale)
+    - spacing, card, breakpoints
+
+  src/components/layout/Shell.tsx
+    - Shell({ children, kpiBar? }) — layout wrapper
+
+  src/components/layout/KPIBar.tsx
+    - KPIBar({ stats: { label, value }[] })
+
+  src/components/ui/StatusBadge.tsx
+    - StatusBadge({ status: StatusType })
+    - StatusType = 'tracking' | 'pursuing' | 'submitted' | 'won' | 'lost'
+
+  src/components/ui/TierBadge.tsx
+    - TierBadge({ tier: TierLevel })
+    - TierLevel = 'T1' | 'T2' | 'T3'
+
+  src/components/ui/Tag.tsx
+    - Tag({ children })
+
+  src/components/ui/SectionLabel.tsx
+    - SectionLabel({ children })
+
+  src/components/ui/SearchInput.tsx
+    - SearchInput({ value, onChange, placeholder? })
+
+  src/components/ui/DeadlineCountdown.tsx
+    - DeadlineCountdown({ deadline: Date | string })
+
+  src/views/* — stub views for T4 to replace (Dashboard, Showcase, OpportunityDetail,
+    Pipeline, PortalHealth, InkProcessor, CardBuilder)
+
+CSS VARS: all --bg-*, --ink-*, --accent-*, --status-*, --stage-*, --border*,
+  --font-headline/body/mono, --content-padding, --grid-gap, --section-spacing,
+  --card-radius, --card-shadow
+
+ROUTE PATHS:
+  / → Dashboard
+  /showcase → Showcase
+  /opportunities/:id → OpportunityDetail
+  /pipeline → Pipeline
+  /portals → PortalHealth
+  /processor → InkProcessor
+  /card-builder → CardBuilder
 ```
 
 ### T2 — Data Layer + API Server
