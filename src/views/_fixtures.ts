@@ -1,5 +1,7 @@
 import type { Opportunity } from '@/types/opportunity'
 import type { Portal } from '@/types/portal'
+import type { Contact } from '@/types/contact'
+import type { Note } from '@/types/note'
 import type { KPIData, DeadlineItem } from '@/api/kpi'
 
 export const DEMO_OPPORTUNITIES: Opportunity[] = [
@@ -208,5 +210,84 @@ export const DEMO_PORTALS: Portal[] = [
     last_scan_at: '2026-03-15T10:00:00Z', next_scan_at: null,
     opportunities_found: 0, error_message: null, active: false,
     created_at: '2025-04-01T00:00:00Z',
+  },
+]
+
+export const DEMO_CONTACTS: Contact[] = [
+  {
+    id: 'contact-001', opportunity_id: 'demo-001', opportunity_ids: ['demo-001', 'demo-010'],
+    name: 'Carlos Mendez', title: 'Director of Capital Projects',
+    email: 'cmendez@prpa.gov.pr', phone: '787-555-0101',
+    role_tag: 'sponsor', agency: 'Puerto Rico Ports Authority',
+    ghl_contact_id: null, notes: 'Decision-maker. Prefers email contact.',
+    created_at: '2026-01-20T08:00:00Z',
+  },
+  {
+    id: 'contact-002', opportunity_id: 'demo-001', opportunity_ids: ['demo-001'],
+    name: 'Maria Rivera', title: 'Senior Project Engineer',
+    email: 'mrivera@prpa.gov.pr', phone: '787-555-0102',
+    role_tag: 'technical', agency: 'Puerto Rico Ports Authority',
+    ghl_contact_id: null, notes: 'Primary technical reviewer.',
+    created_at: '2026-01-22T08:00:00Z',
+  },
+  {
+    id: 'contact-003', opportunity_id: 'demo-002', opportunity_ids: ['demo-002'],
+    name: 'CDR James Patterson', title: 'Contracting Officer',
+    email: 'james.patterson@navy.mil', phone: '904-555-0203',
+    role_tag: 'contracting', agency: 'NAVFAC Southeast',
+    ghl_contact_id: null, notes: 'Needs FAR-compliant proposal package.',
+    created_at: '2026-02-05T09:00:00Z',
+  },
+  {
+    id: 'contact-004', opportunity_id: 'demo-003', opportunity_ids: ['demo-003', 'demo-011', 'demo-012'],
+    name: 'Robert Chen', title: 'FAA Region II Engineering Lead',
+    email: 'r.chen@faa.gov', phone: '787-555-0304',
+    role_tag: 'technical', agency: 'Federal Aviation Administration',
+    ghl_contact_id: null, notes: 'Covers all PR airport projects.',
+    created_at: '2026-02-01T10:00:00Z',
+  },
+  {
+    id: 'contact-005', opportunity_id: 'demo-004', opportunity_ids: ['demo-004'],
+    name: 'Luis Vega', title: 'Bridge Inspector',
+    email: 'lvega@dtop.pr.gov', phone: '787-555-0405',
+    role_tag: 'technical', agency: 'PR Department of Transportation',
+    ghl_contact_id: null, notes: null,
+    created_at: '2026-03-10T08:00:00Z',
+  },
+  {
+    id: 'contact-006', opportunity_id: 'demo-005', opportunity_ids: ['demo-005'],
+    name: 'Sarah Thompson', title: 'USACE Project Manager',
+    email: 'sarah.thompson@usace.army.mil', phone: '904-555-0506',
+    role_tag: 'sponsor', agency: 'U.S. Army Corps of Engineers',
+    ghl_contact_id: null, notes: 'Reviews dredging permits.',
+    created_at: '2026-02-25T09:00:00Z',
+  },
+]
+
+export const DEMO_NOTES: Note[] = [
+  {
+    id: 'note-001', opportunity_id: 'demo-001',
+    author: 'Jorge', text: 'Spoke with Carlos — confirmed proposal due May 20. Strong fit for our BIM coordination capabilities.',
+    created_at: '2026-04-22T14:30:00Z',
+  },
+  {
+    id: 'note-002', opportunity_id: 'demo-001',
+    author: 'Sergio', text: 'BIM model template ready. Will share with Maria for technical review.',
+    created_at: '2026-04-23T09:15:00Z',
+  },
+  {
+    id: 'note-003', opportunity_id: 'demo-001',
+    author: 'Jorge', text: 'Site visit scheduled for next Tuesday. Need to coordinate flight + hotel for Julio.',
+    created_at: '2026-04-25T16:45:00Z',
+  },
+  {
+    id: 'note-004', opportunity_id: 'demo-003',
+    author: 'Sergio', text: 'Runway resurfacing — competitive bid. Three known incumbents. Pricing pressure expected.',
+    created_at: '2026-04-18T11:00:00Z',
+  },
+  {
+    id: 'note-005', opportunity_id: 'demo-004',
+    author: 'Sergio', text: 'Emergency repair scope. Fast track procurement. Low margin but builds DTOP relationship.',
+    created_at: '2026-04-15T10:00:00Z',
   },
 ]

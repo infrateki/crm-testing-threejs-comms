@@ -5,30 +5,54 @@ import { DeadlineCountdown } from '@/components/ui/DeadlineCountdown'
 import { StatsBar } from '@/components/stats/StatsBar'
 import { HeroSplitCard } from '@/components/cards/HeroSplitCard'
 import { WireframeBackground } from '@/components/three/WireframeBackground'
-import { useKPI, useDeadlines } from '@/api/kpi'
-import { useOpportunities } from '@/api/opportunities'
 import { usePortals } from '@/api/portals'
+import { useOpportunityStore } from '@/store/useOpportunityStore'
 import { formatCurrency } from '@/utils/format'
 import type { StatItem } from '@/types/opportunity'
-import { DEMO_OPPORTUNITIES, DEMO_KPI, DEMO_DEADLINES, DEMO_PORTALS } from './_fixtures'
+import { DEMO_PORTALS } from './_fixtures'
 
 export function Dashboard() {
   const navigate = useNavigate()
-  const { data: kpiData } = useKPI()
-  const { data: oppsResponse } = useOpportunities()
-  const { data: deadlinesData } = useDeadlines(7)
+  const opportunities = useOpportunityStore((s) => s.opportunities)
   const { data: portalsData } = usePortals()
-
-  const kpi = kpiData ?? DEMO_KPI
-  const opportunities = oppsResponse?.data ?? DEMO_OPPORTUNITIES
-  const deadlines = deadlinesData ?? DEMO_DEADLINES
   const portals = portalsData ?? DEMO_PORTALS
 
   const hotOpp = useMemo(
-    () =>
-      opportunities.find((o) => o.tier === 1 && o.score === 'high') ?? opportunities[0],
+    () => opportunities.find((o) => o.tier === 1 && o.score === 'high') ?? opportunities[0],
     [opportunities],
   )
+
+  const kpi = useMemo(() => {
+    const closed = new Set(['won', 'lost', 'dismissed'])
+    const won = opportunities.filter((o) => o.status === 'won').length
+    const lost = opportunities.filter((o) => o.status === 'lost').length
+    const active_pursuits = opportunities.filter((o) => !closed.has(o.status)).length
+    const total_value = opportunities.reduce((s, o) => s + (o.value ?? 0), 0)
+    const win_rate = won + lost > 0 ? won / (won + lost) : 0
+    const now = Date.now()
+    const monthMs = 30 * 86_400_000
+    const deadlines_this_month = opportunities.filter((o) => {
+      if (!o.deadline) return false
+      const t = new Date(o.deadline).getTime()
+      return t >= now && t <= now + monthMs
+    }).length
+    const by_owner: Record<string, number> = {}
+    for (const o of opportunities) by_owner[o.owner] = (by_owner[o.owner] ?? 0) + 1
+    return { active_pursuits, total_value, win_rate, deadlines_this_month, by_owner }
+  }, [opportunities])
+
+  const deadlines = useMemo(() => {
+    const now = Date.now()
+    const weekMs = 7 * 86_400_000
+    return opportunities
+      .filter((o) => {
+        if (!o.deadline) return false
+        const t = new Date(o.deadline).getTime()
+        return t >= now - 86_400_000 && t <= now + weekMs
+      })
+      .sort((a, b) => new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime())
+      .slice(0, 6)
+  }, [opportunities])
 
   const kpiStats: StatItem[] = [
     { label: 'Active Pursuits', value: kpi.active_pursuits },
@@ -160,7 +184,7 @@ export function Dashboard() {
                         {item.agency}
                       </p>
                     </div>
-                    <DeadlineCountdown deadline={item.deadline} />
+                    {item.deadline && <DeadlineCountdown deadline={item.deadline} />}
                   </div>
                 ))
               )}

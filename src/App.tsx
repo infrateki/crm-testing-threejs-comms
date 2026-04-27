@@ -10,6 +10,7 @@ const OpportunityDetail = lazy(() =>
   import('@/views/OpportunityDetail').then((m) => ({ default: m.OpportunityDetail }))
 )
 const Pipeline = lazy(() => import('@/views/Pipeline').then((m) => ({ default: m.Pipeline })))
+const Contacts = lazy(() => import('@/views/Contacts').then((m) => ({ default: m.Contacts })))
 const PortalHealth = lazy(() => import('@/views/PortalHealth').then((m) => ({ default: m.PortalHealth })))
 const InkProcessor = lazy(() => import('@/views/InkProcessor').then((m) => ({ default: m.InkProcessor })))
 const CardBuilder = lazy(() => import('@/views/CardBuilder').then((m) => ({ default: m.CardBuilder })))
@@ -32,6 +33,7 @@ function AppRoutes() {
           <Route path="/showcase" element={<Showcase />} />
           <Route path="/opportunities/:id" element={<OpportunityDetail />} />
           <Route path="/pipeline" element={<Pipeline />} />
+          <Route path="/contacts" element={<Contacts />} />
           <Route path="/portals" element={<PortalHealth />} />
           <Route path="/processor" element={<InkProcessor />} />
           <Route path="/card-builder" element={<CardBuilder />} />

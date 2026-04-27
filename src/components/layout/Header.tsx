@@ -4,6 +4,7 @@ const navItems = [
   { label: 'Dashboard', to: '/' },
   { label: 'Showcase', to: '/showcase' },
   { label: 'Pipeline', to: '/pipeline' },
+  { label: 'Contacts', to: '/contacts' },
   { label: 'Portals', to: '/portals' },
   { label: 'Processor', to: '/processor' },
 ]
