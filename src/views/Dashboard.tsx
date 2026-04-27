@@ -84,9 +84,9 @@ export function Dashboard() {
   return (
     <div>
       {/* KPI Stats Bar with wireframe background */}
-      <div style={{ position: 'relative', overflow: 'hidden' }}>
+      <div style={{ position: 'relative', overflow: 'hidden', minHeight: '300px', display: 'flex', alignItems: 'center' }}>
         <WireframeBackground />
-        <div style={{ position: 'relative', zIndex: 1 }}>
+        <div style={{ position: 'relative', zIndex: 1, width: '100%' }}>
           <StatsBar stats={kpiStats} theme="cream" />
         </div>
       </div>

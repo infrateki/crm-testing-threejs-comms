@@ -23,13 +23,14 @@ interface IllustrationViewerProps {
   width?: number;
   height?: number;
   style?: React.CSSProperties;
+  intensity?: number;
 }
 
 const isMobile = (): boolean =>
   /Mobi|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
 
 export const IllustrationViewer = forwardRef<IllustrationViewerHandle, IllustrationViewerProps>(
-  function IllustrationViewer({ data, width = 1600, height = 900, style }, ref) {
+  function IllustrationViewer({ data, width = 1600, height = 900, style, intensity = 0.02 }, ref) {
     const [layers, setLayers] = useState<LayerOutput[]>([]);
     const [staticDataURL, setStaticDataURL] = useState<string>('');
     const [loading, setLoading] = useState(true);
@@ -180,6 +181,6 @@ export const IllustrationViewer = forwardRef<IllustrationViewerHandle, Illustrat
       );
     }
 
-    return <ParallaxScene layers={layers} style={style} />;
+    return <ParallaxScene layers={layers} intensity={intensity} style={style} />;
   }
 );

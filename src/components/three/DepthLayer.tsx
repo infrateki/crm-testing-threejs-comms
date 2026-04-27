@@ -19,23 +19,29 @@ export function DepthLayer({
   intensity = 0.02,
 }: DepthLayerProps) {
   const meshRef = useRef<THREE.Mesh>(null);
-  const { viewport } = useThree();
+  const { viewport, invalidate } = useThree();
   const texture = useTexture(dataURL);
 
   texture.minFilter = THREE.LinearFilter;
   texture.magFilter = THREE.LinearFilter;
 
-  const targetRef = useRef({ x: 0, y: 0 });
-
   useFrame(() => {
     if (!meshRef.current) return;
     if (!mouseRef.current) return;
 
-    targetRef.current.x = mouseRef.current.x * parallaxFactor * intensity * viewport.width;
-    targetRef.current.y = mouseRef.current.y * parallaxFactor * intensity * viewport.height;
+    const targetX = mouseRef.current.x * parallaxFactor * intensity * viewport.width;
+    const targetY = mouseRef.current.y * parallaxFactor * intensity * viewport.height;
 
-    meshRef.current.position.x += (targetRef.current.x - meshRef.current.position.x) * 0.08;
-    meshRef.current.position.y += (targetRef.current.y - meshRef.current.position.y) * 0.08;
+    const dx = targetX - meshRef.current.position.x;
+    const dy = targetY - meshRef.current.position.y;
+
+    meshRef.current.position.x += dx * 0.08;
+    meshRef.current.position.y += dy * 0.08;
+
+    // Keep frame loop ticking until convergence (frameloop="demand" mode)
+    if (Math.abs(dx) > 0.001 || Math.abs(dy) > 0.001) {
+      invalidate();
+    }
   });
 
   return (

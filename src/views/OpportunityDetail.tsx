@@ -734,10 +734,10 @@ export function OpportunityDetail() {
                 marginBottom: '12px',
               }}
             >
-              Procedural building model — NAICS {opportunity.naics_code ?? 'N/A'} · Drag to orbit
+              Procedural building model — drag to orbit · scroll to zoom
             </div>
-            <div style={{ height: '480px', border: '1px solid var(--border)', borderRadius: '3px', overflow: 'hidden' }}>
-              <BuildingModel3D naicsCode={opportunity.naics_code} style={{ height: '100%' }} />
+            <div style={{ height: '500px', border: '1px solid var(--border)', borderRadius: '3px', overflow: 'hidden' }}>
+              <BuildingModel3D opportunity={opportunity} style={{ height: '100%' }} />
             </div>
           </div>
         )}

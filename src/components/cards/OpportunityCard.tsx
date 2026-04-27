@@ -44,7 +44,7 @@ export function OpportunityCard({ opportunity, onClick }: OpportunityCardProps) 
         overflow: 'hidden',
       }}
     >
-      {/* Illustration */}
+      {/* Illustration — parallax activates on hover, lerps back on leave */}
       <div style={{ height: '200px', overflow: 'hidden', position: 'relative' }}>
         <IllustrationViewer
           data={{
@@ -52,6 +52,7 @@ export function OpportunityCard({ opportunity, onClick }: OpportunityCardProps) 
             illustration_url: opportunity.illustration_url,
             geography_tag: opportunity.naics_code ?? undefined,
           }}
+          intensity={hovered ? 0.02 : 0}
           style={{ width: '100%', height: '200px' }}
         />
       </div>

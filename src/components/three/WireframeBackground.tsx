@@ -1,44 +1,50 @@
-import { useRef } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { useEffect, useRef } from 'react'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import type { Group } from 'three'
 import { useIsMobile } from '@/hooks/useIsMobile'
 
-function ArchitecturalScene() {
+function CameraSetup() {
+  const { camera } = useThree()
+  useEffect(() => {
+    camera.lookAt(0, 0, 0)
+    camera.updateProjectionMatrix()
+  }, [camera])
+  return null
+}
+
+function CityScene() {
   const groupRef = useRef<Group>(null)
+  const { invalidate } = useThree()
 
   useFrame(() => {
     if (!groupRef.current) return
     groupRef.current.rotation.y += 0.001
-    groupRef.current.rotation.x = Math.sin(Date.now() * 0.0003) * 0.08
+    invalidate()
   })
 
+  // 4 wireframe BoxGeometry buildings, varied heights, spread across the scene
   return (
-    <group ref={groupRef}>
-      {/* Base building box */}
-      <mesh position={[0, -0.5, 0]}>
-        <boxGeometry args={[4, 2, 2]} />
-        <meshBasicMaterial color="#1a1a1a" wireframe transparent opacity={0.15} depthWrite={false} />
-      </mesh>
-      {/* Tower */}
-      <mesh position={[0, 1, 0]}>
-        <boxGeometry args={[1.5, 2, 1.5]} />
-        <meshBasicMaterial color="#1a1a1a" wireframe transparent opacity={0.15} depthWrite={false} />
-      </mesh>
-      {/* Pitched roof */}
-      <mesh position={[0, 2.5, 0]}>
-        <coneGeometry args={[1.2, 1, 4]} />
-        <meshBasicMaterial color="#1a1a1a" wireframe transparent opacity={0.15} depthWrite={false} />
-      </mesh>
-      {/* Side wings */}
-      <mesh position={[-2.5, -0.8, 0]}>
-        <boxGeometry args={[1, 1.2, 1.6]} />
-        <meshBasicMaterial color="#1a1a1a" wireframe transparent opacity={0.10} depthWrite={false} />
-      </mesh>
-      <mesh position={[2.5, -0.8, 0]}>
-        <boxGeometry args={[1, 1.2, 1.6]} />
-        <meshBasicMaterial color="#1a1a1a" wireframe transparent opacity={0.10} depthWrite={false} />
-      </mesh>
-    </group>
+    <>
+      <gridHelper args={[40, 40, '#E5E7EB', '#E5E7EB']} position={[0, 0, 0]} />
+      <group ref={groupRef}>
+        <mesh position={[-6, 1.5, -2]}>
+          <boxGeometry args={[2.5, 3, 2.5]} />
+          <meshBasicMaterial color="#D1D5DB" wireframe transparent opacity={0.12} depthWrite={false} />
+        </mesh>
+        <mesh position={[-1, 2.25, 1]}>
+          <boxGeometry args={[2, 4.5, 2]} />
+          <meshBasicMaterial color="#D1D5DB" wireframe transparent opacity={0.12} depthWrite={false} />
+        </mesh>
+        <mesh position={[3, 1.0, -1]}>
+          <boxGeometry args={[2.4, 2, 2.4]} />
+          <meshBasicMaterial color="#D1D5DB" wireframe transparent opacity={0.12} depthWrite={false} />
+        </mesh>
+        <mesh position={[6.5, 1.75, 1.5]}>
+          <boxGeometry args={[2.2, 3.5, 2.2]} />
+          <meshBasicMaterial color="#D1D5DB" wireframe transparent opacity={0.12} depthWrite={false} />
+        </mesh>
+      </group>
+    </>
   )
 }
 
@@ -55,19 +61,30 @@ export function WireframeBackground({ style }: WireframeBackgroundProps) {
       style={{
         position: 'absolute',
         inset: 0,
+        width: '100%',
+        height: '300px',
+        zIndex: -1,
         pointerEvents: 'none',
         overflow: 'hidden',
         ...style,
       }}
     >
       <Canvas
-        frameloop="always"
+        orthographic
+        frameloop="demand"
         dpr={[1, Math.min(window.devicePixelRatio, 2)]}
-        camera={{ position: [0, 0, 8], fov: 35 }}
+        camera={{
+          // 30° elevation: position at sin(30°)=0.5, cos(30°)≈0.866 normalized
+          position: [8.66, 5, 8.66],
+          zoom: 28,
+          near: 0.1,
+          far: 1000,
+        }}
         gl={{ antialias: true, alpha: true }}
         style={{ background: 'transparent' }}
       >
-        <ArchitecturalScene />
+        <CameraSetup />
+        <CityScene />
       </Canvas>
     </div>
   )

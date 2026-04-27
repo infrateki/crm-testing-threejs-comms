@@ -36,12 +36,21 @@ export function ParallaxController({
     [containerRef, onInvalidate]
   );
 
+  const handleMouseLeave = useCallback(() => {
+    mouseRef.current = { x: 0, y: 0 };
+    onInvalidate();
+  }, [onInvalidate]);
+
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     el.addEventListener('mousemove', handleMouseMove);
-    return () => el.removeEventListener('mousemove', handleMouseMove);
-  }, [containerRef, handleMouseMove]);
+    el.addEventListener('mouseleave', handleMouseLeave);
+    return () => {
+      el.removeEventListener('mousemove', handleMouseMove);
+      el.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [containerRef, handleMouseMove, handleMouseLeave]);
 
   return <>{children({ mouseRef })}</>;
 }

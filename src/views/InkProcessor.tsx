@@ -1,11 +1,10 @@
-import { useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { SectionLabel } from '@/components/ui/SectionLabel'
 import { InkSketchProcessor } from '@/engine/ink-processor/InkSketchProcessor'
 import { LayerSplitter } from '@/engine/layer-splitter/LayerSplitter'
 import { ParallaxScene } from '@/components/three/ParallaxScene'
 import type { ProcessorConfig, LayerOutput } from '@/engine/ink-processor/types'
-import { useOpportunities } from '@/api/opportunities'
 import type { OpportunitiesResponse } from '@/api/opportunities'
 import { useOpportunityStore } from '@/store/useOpportunityStore'
 import { useIllustrationOverrides } from '@/store/useIllustrationOverrides'
@@ -67,15 +66,37 @@ export function InkProcessor() {
   })
 
   const [parallaxLayers, setParallaxLayers] = useState<LayerOutput[]>([])
+  const [layerFactors, setLayerFactors] = useState({ background: 0.3, midground: 0.8, foreground: 1.5 })
   const [showAssign, setShowAssign] = useState(false)
   const [assignOppId, setAssignOppId] = useState('')
-  const [assignedTitle, setAssignedTitle] = useState<string | null>(null)
+  const [toast, setToast] = useState<{ message: string; visible: boolean } | null>(null)
 
   const queryClient = useQueryClient()
   const updateOpportunity = useOpportunityStore((s) => s.updateOpportunity)
   const setIllustrationOverride = useIllustrationOverrides((s) => s.setOverride)
-  const { data: oppsResponse } = useOpportunities()
-  const allOpps = oppsResponse?.data ?? DEMO_OPPORTUNITIES
+  const allOpps = useOpportunityStore((s) => s.opportunities)
+
+  // Adjusted layers reflect slider state
+  const adjustedLayers = useMemo<LayerOutput[]>(
+    () =>
+      parallaxLayers.map((l) => ({
+        ...l,
+        parallaxFactor:
+          l.name === 'background' ? layerFactors.background
+          : l.name === 'midground' ? layerFactors.midground
+          : layerFactors.foreground,
+      })),
+    [parallaxLayers, layerFactors],
+  )
+
+  // Toast auto-dismiss
+  useEffect(() => {
+    if (!toast?.visible) return
+    const id = window.setTimeout(() => {
+      setToast((t) => (t ? { ...t, visible: false } : t))
+    }, 3000)
+    return () => window.clearTimeout(id)
+  }, [toast?.visible])
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
@@ -101,8 +122,9 @@ export function InkProcessor() {
         }
       },
     )
+    queryClient.invalidateQueries({ queryKey: ['opportunities'] })
     const opp = allOpps.find((o) => o.id === assignOppId)
-    setAssignedTitle(opp?.title ?? assignOppId)
+    setToast({ message: `Assigned to ${opp?.title ?? assignOppId}`, visible: true })
     setAssignOppId('')
     setShowAssign(false)
   }
@@ -569,38 +591,122 @@ export function InkProcessor() {
             </section>
           )}
 
-          {/* Parallax 3D preview */}
+          {/* Parallax 3D preview with live depth controls */}
           {parallaxLayers.length > 0 && (
             <section style={{ marginBottom: '32px' }}>
               <SectionLabel>Parallax Preview</SectionLabel>
               <div
                 style={{
                   marginTop: '16px',
-                  height: '320px',
-                  border: '1px solid var(--border)',
-                  borderRadius: '3px',
-                  overflow: 'hidden',
-                  position: 'relative',
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 240px',
+                  gap: '16px',
                 }}
               >
-                <ParallaxScene layers={parallaxLayers} intensity={0.02} style={{ height: '100%' }} />
+                {/* Live parallax canvas */}
                 <div
                   style={{
-                    position: 'absolute',
-                    bottom: '10px',
-                    left: '10px',
-                    background: 'rgba(255,255,255,0.85)',
+                    height: '360px',
                     border: '1px solid var(--border)',
                     borderRadius: '3px',
-                    padding: '3px 8px',
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '10px',
-                    color: 'var(--ink-muted)',
-                    letterSpacing: '0.04em',
-                    pointerEvents: 'none',
+                    overflow: 'hidden',
+                    position: 'relative',
                   }}
                 >
-                  MOVE MOUSE TO ACTIVATE PARALLAX · {parallaxLayers.length} LAYERS
+                  <ParallaxScene layers={adjustedLayers} intensity={0.02} style={{ height: '100%' }} />
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: '10px',
+                      left: '10px',
+                      background: 'rgba(255,255,255,0.85)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '3px',
+                      padding: '3px 8px',
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '10px',
+                      color: 'var(--ink-muted)',
+                      letterSpacing: '0.04em',
+                      pointerEvents: 'none',
+                    }}
+                  >
+                    MOVE MOUSE TO ACTIVATE PARALLAX · {adjustedLayers.length} LAYERS
+                  </div>
+                </div>
+
+                {/* 3 depth sliders */}
+                <div
+                  style={{
+                    border: '1px solid var(--border)',
+                    borderRadius: '3px',
+                    padding: '20px',
+                    background: 'var(--bg-cream)',
+                  }}
+                >
+                  <SectionLabel>Depth Layers</SectionLabel>
+                  <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    {(['background', 'midground', 'foreground'] as const).map((layer) => {
+                      const value = layerFactors[layer]
+                      return (
+                        <div key={layer}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                            <label
+                              style={{
+                                fontFamily: 'var(--font-body)',
+                                fontSize: '11px',
+                                color: 'var(--ink-tertiary)',
+                                textTransform: 'capitalize' as const,
+                                letterSpacing: '0.04em',
+                              }}
+                            >
+                              {layer}
+                            </label>
+                            <span
+                              style={{
+                                fontFamily: 'var(--font-mono)',
+                                fontSize: '11px',
+                                color: 'var(--ink-muted)',
+                              }}
+                            >
+                              {value.toFixed(2)}
+                            </span>
+                          </div>
+                          <input
+                            type="range"
+                            min={0}
+                            max={3}
+                            step={0.05}
+                            value={value}
+                            onChange={(e) =>
+                              setLayerFactors((s) => ({ ...s, [layer]: parseFloat(e.target.value) }))
+                            }
+                            style={{ width: '100%', accentColor: 'var(--accent-sage)' }}
+                          />
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <button
+                    onClick={() =>
+                      setLayerFactors({ background: 0.3, midground: 0.8, foreground: 1.5 })
+                    }
+                    style={{
+                      marginTop: '14px',
+                      width: '100%',
+                      padding: '7px',
+                      background: 'var(--bg-primary)',
+                      color: 'var(--ink-tertiary)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '3px',
+                      fontFamily: 'var(--font-body)',
+                      fontSize: '11px',
+                      cursor: 'pointer',
+                      letterSpacing: '0.04em',
+                      textTransform: 'uppercase' as const,
+                    }}
+                  >
+                    Reset Defaults
+                  </button>
                 </div>
               </div>
             </section>
@@ -645,7 +751,7 @@ export function InkProcessor() {
                   Download SVG
                 </button>
                 <button
-                  onClick={() => { setShowAssign((v) => !v); setAssignedTitle(null) }}
+                  onClick={() => setShowAssign((v) => !v)}
                   style={{
                     padding: '10px 20px',
                     background: showAssign ? 'var(--accent-sage)' : 'var(--bg-cream)',
@@ -662,20 +768,6 @@ export function InkProcessor() {
                 >
                   Assign to Opportunity
                 </button>
-                {assignedTitle && (
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-body)',
-                      fontSize: '13px',
-                      color: '#059669',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                    }}
-                  >
-                    ✓ Assigned to {assignedTitle}
-                  </span>
-                )}
               </div>
 
               {/* Assign panel */}
@@ -756,6 +848,40 @@ export function InkProcessor() {
             </div>
           )}
         </>
+      )}
+
+      {/* Toast notification */}
+      {toast && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '32px',
+            right: '32px',
+            background: 'var(--ink-primary)',
+            color: '#fff',
+            padding: '12px 18px',
+            border: '1px solid var(--ink-primary)',
+            borderRadius: '3px',
+            fontFamily: 'var(--font-body)',
+            fontSize: '13px',
+            fontWeight: 500,
+            letterSpacing: '0.02em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
+            opacity: toast.visible ? 1 : 0,
+            transform: toast.visible ? 'translateY(0)' : 'translateY(8px)',
+            transition: 'opacity 0.25s ease, transform 0.25s ease',
+            pointerEvents: 'none',
+            zIndex: 1000,
+          }}
+        >
+          <span style={{ color: '#34D399', fontFamily: 'var(--font-mono)', fontSize: '14px' }}>
+            ✓
+          </span>
+          {toast.message}
+        </div>
       )}
     </div>
   )
