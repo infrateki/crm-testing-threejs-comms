@@ -46,6 +46,7 @@ export interface Opportunity {
   naics_code: string | null;
   set_aside: string | null;
   ghl_contact_id: string | null;
+  illustration_url?: string;
   contacts?: import('./contact').Contact[];
   photos?: Photo[];
   created_at: string;

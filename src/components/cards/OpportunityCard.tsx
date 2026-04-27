@@ -47,7 +47,11 @@ export function OpportunityCard({ opportunity, onClick }: OpportunityCardProps) 
       {/* Illustration */}
       <div style={{ height: '200px', overflow: 'hidden', position: 'relative' }}>
         <IllustrationViewer
-          data={{ id: opportunity.id, geography_tag: opportunity.naics_code ?? undefined }}
+          data={{
+            id: opportunity.id,
+            illustration_url: opportunity.illustration_url,
+            geography_tag: opportunity.naics_code ?? undefined,
+          }}
           style={{ width: '100%', height: '200px' }}
         />
       </div>

@@ -1,7 +1,12 @@
 import { useRef, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { SectionLabel } from '@/components/ui/SectionLabel'
 import { InkSketchProcessor } from '@/engine/ink-processor/InkSketchProcessor'
 import type { ProcessorConfig } from '@/engine/ink-processor/types'
+import { useOpportunities } from '@/api/opportunities'
+import type { OpportunitiesResponse } from '@/api/opportunities'
+import { useOpportunityStore } from '@/store/useOpportunityStore'
+import { DEMO_OPPORTUNITIES } from './_fixtures'
 
 type Preset = 'ink-heavy' | 'ink-light' | 'ink-architectural'
 type LineWeight = 'heavy' | 'medium' | 'light'
@@ -57,8 +62,43 @@ export function InkProcessor() {
     ...PRESET_DEFAULTS['ink-architectural'],
   })
 
+  const [showAssign, setShowAssign] = useState(false)
+  const [assignOppId, setAssignOppId] = useState('')
+  const [assignedTitle, setAssignedTitle] = useState<string | null>(null)
+
+  const queryClient = useQueryClient()
+  const updateOpportunity = useOpportunityStore((s) => s.updateOpportunity)
+  const { data: oppsResponse } = useOpportunities()
+  const allOpps = oppsResponse?.data ?? DEMO_OPPORTUNITIES
+
   const fileInputRef = useRef<HTMLInputElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
+
+  const handleAssign = () => {
+    if (!assignOppId || !processedUrl) return
+    updateOpportunity(assignOppId, { illustration_url: processedUrl })
+    queryClient.setQueriesData<OpportunitiesResponse>(
+      { queryKey: ['opportunities'], exact: false },
+      (old) => {
+        const base = old ?? {
+          data: DEMO_OPPORTUNITIES,
+          total: DEMO_OPPORTUNITIES.length,
+          page: 1,
+          limit: 50,
+        }
+        return {
+          ...base,
+          data: base.data.map((o) =>
+            o.id === assignOppId ? { ...o, illustration_url: processedUrl } : o,
+          ),
+        }
+      },
+    )
+    const opp = allOpps.find((o) => o.id === assignOppId)
+    setAssignedTitle(opp?.title ?? assignOppId)
+    setAssignOppId('')
+    setShowAssign(false)
+  }
 
   const handleFile = (file: File) => {
     if (!file.type.startsWith('image/')) return
@@ -522,57 +562,151 @@ export function InkProcessor() {
 
           {/* Action buttons */}
           {processedUrl && (
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button
-                onClick={() => handleDownload(processedUrl, 'ink-processed.png')}
-                style={{
-                  padding: '10px 20px',
-                  background: 'var(--ink-primary)',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '3px',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  letterSpacing: '0.02em',
-                }}
-              >
-                Download PNG
-              </button>
-              <button
-                onClick={() => handleDownload(processedUrl, 'ink-processed.svg')}
-                style={{
-                  padding: '10px 20px',
-                  background: 'var(--bg-cream)',
-                  color: 'var(--ink-secondary)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '3px',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                  letterSpacing: '0.02em',
-                }}
-              >
-                Download SVG
-              </button>
-              <button
-                style={{
-                  padding: '10px 20px',
-                  background: 'var(--bg-cream)',
-                  color: 'var(--accent-sage)',
-                  border: '1px solid var(--accent-sage)',
-                  borderRadius: '3px',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                  letterSpacing: '0.02em',
-                }}
-              >
-                Assign to Opportunity
-              </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+                <button
+                  onClick={() => handleDownload(processedUrl, 'ink-processed.png')}
+                  style={{
+                    padding: '10px 20px',
+                    background: 'var(--ink-primary)',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '3px',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    letterSpacing: '0.02em',
+                  }}
+                >
+                  Download PNG
+                </button>
+                <button
+                  onClick={() => handleDownload(processedUrl, 'ink-processed.svg')}
+                  style={{
+                    padding: '10px 20px',
+                    background: 'var(--bg-cream)',
+                    color: 'var(--ink-secondary)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '3px',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    letterSpacing: '0.02em',
+                  }}
+                >
+                  Download SVG
+                </button>
+                <button
+                  onClick={() => { setShowAssign((v) => !v); setAssignedTitle(null) }}
+                  style={{
+                    padding: '10px 20px',
+                    background: showAssign ? 'var(--accent-sage)' : 'var(--bg-cream)',
+                    color: showAssign ? '#fff' : 'var(--accent-sage)',
+                    border: '1px solid var(--accent-sage)',
+                    borderRadius: '3px',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    letterSpacing: '0.02em',
+                    transition: 'all 0.15s',
+                  }}
+                >
+                  Assign to Opportunity
+                </button>
+                {assignedTitle && (
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-body)',
+                      fontSize: '13px',
+                      color: '#059669',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                    }}
+                  >
+                    ✓ Assigned to {assignedTitle}
+                  </span>
+                )}
+              </div>
+
+              {/* Assign panel */}
+              {showAssign && (
+                <div
+                  style={{
+                    border: '1px solid var(--accent-sage)',
+                    borderRadius: '3px',
+                    padding: '20px 24px',
+                    background: 'var(--bg-cream)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '14px',
+                    maxWidth: '560px',
+                  }}
+                >
+                  <SectionLabel>Select Opportunity</SectionLabel>
+                  <select
+                    value={assignOppId}
+                    onChange={(e) => setAssignOppId(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      border: '1px solid var(--border)',
+                      borderRadius: '3px',
+                      fontFamily: 'var(--font-body)',
+                      fontSize: '13px',
+                      color: assignOppId ? 'var(--ink-primary)' : 'var(--ink-muted)',
+                      background: 'var(--bg-primary)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <option value="">— Choose opportunity —</option>
+                    {allOpps.map((opp) => (
+                      <option key={opp.id} value={opp.id}>
+                        {opp.title} · {opp.agency}
+                      </option>
+                    ))}
+                  </select>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button
+                      onClick={handleAssign}
+                      disabled={!assignOppId}
+                      style={{
+                        padding: '9px 20px',
+                        background: assignOppId ? 'var(--accent-sage)' : 'var(--border)',
+                        color: assignOppId ? '#fff' : 'var(--ink-muted)',
+                        border: 'none',
+                        borderRadius: '3px',
+                        fontFamily: 'var(--font-body)',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        cursor: assignOppId ? 'pointer' : 'not-allowed',
+                        letterSpacing: '0.02em',
+                        transition: 'background 0.15s',
+                      }}
+                    >
+                      Confirm Assignment
+                    </button>
+                    <button
+                      onClick={() => { setShowAssign(false); setAssignOppId('') }}
+                      style={{
+                        padding: '9px 16px',
+                        background: 'none',
+                        color: 'var(--ink-muted)',
+                        border: '1px solid var(--border)',
+                        borderRadius: '3px',
+                        fontFamily: 'var(--font-body)',
+                        fontSize: '13px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </>

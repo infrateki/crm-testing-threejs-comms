@@ -56,7 +56,11 @@ export function HeroSplitCard({ opportunity, onUploadPhoto }: HeroSplitCardProps
         {/* Left: Illustration — full bleed, no border-radius */}
         <div style={{ position: 'relative', overflow: 'hidden', minHeight: '400px' }}>
           <IllustrationViewer
-            data={{ id: opportunity.id, geography_tag: opportunity.naics_code ?? undefined }}
+            data={{
+              id: opportunity.id,
+              illustration_url: opportunity.illustration_url,
+              geography_tag: opportunity.naics_code ?? undefined,
+            }}
             style={{
               position: 'absolute',
               inset: 0,
