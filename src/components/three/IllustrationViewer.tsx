@@ -4,6 +4,8 @@ import { InkSketchProcessor } from '@/engine/ink-processor/InkSketchProcessor';
 import { LayerSplitter } from '@/engine/layer-splitter/LayerSplitter';
 import { SceneGenerator } from '@/engine/procedural/SceneGenerator';
 import { PRESETS } from '@/engine/ink-processor/presets';
+import { generateSceneFromTag, hashString } from '@/engine/procedural/svg/registry';
+import { rasterizeSVG, rasterizeLayers, svgToDataURL } from '@/engine/procedural/svg/rasterize';
 import type { LayerOutput } from '@/engine/ink-processor/types';
 
 export interface IllustrationData {
@@ -27,7 +29,7 @@ const isMobile = (): boolean =>
   /Mobi|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
 
 export const IllustrationViewer = forwardRef<IllustrationViewerHandle, IllustrationViewerProps>(
-  function IllustrationViewer({ data, width = 1200, height = 800, style }, ref) {
+  function IllustrationViewer({ data, width = 1600, height = 900, style }, ref) {
     const [layers, setLayers] = useState<LayerOutput[]>([]);
     const [staticDataURL, setStaticDataURL] = useState<string>('');
     const [loading, setLoading] = useState(true);
@@ -40,14 +42,12 @@ export const IllustrationViewer = forwardRef<IllustrationViewerHandle, Illustrat
 
     useEffect(() => {
       let cancelled = false;
-      const splitter = new LayerSplitter();
 
       async function build() {
         setLoading(true);
 
         try {
-          let sourceCanvas: HTMLCanvasElement;
-
+          // ── Path A: User-uploaded photo → InkSketchProcessor (priority) ──
           if (data.illustration_url) {
             const img = new Image();
             img.crossOrigin = 'anonymous';
@@ -61,37 +61,75 @@ export const IllustrationViewer = forwardRef<IllustrationViewerHandle, Illustrat
             const result = await processor.process(img, PRESETS['ink-architectural']);
             processor.dispose();
 
-            sourceCanvas = document.createElement('canvas');
+            const sourceCanvas = document.createElement('canvas');
             sourceCanvas.width = result.result.width;
             sourceCanvas.height = result.result.height;
             const ctx2d = sourceCanvas.getContext('2d');
             if (ctx2d) ctx2d.putImageData(result.result, 0, 0);
-          } else {
-            const generator = new SceneGenerator(width, height);
-            const scene = generator.generate(data.geography_tag ?? 'wide-terminal');
-            sourceCanvas = scene.canvas;
+
+            if (cancelled) return;
+            canvasRef.current = sourceCanvas;
+
+            if (mobile) {
+              setStaticDataURL(sourceCanvas.toDataURL('image/png'));
+            } else {
+              const splitter = new LayerSplitter();
+              setLayers(splitter.split(sourceCanvas));
+            }
+            if (!cancelled) setLoading(false);
+            return;
           }
 
+          // ── Path B: Hand-crafted SVG architectural illustration ──
+          // Try geography_tag first; if no match, deterministically pick a scene from ID hash.
+          const sceneTag = data.geography_tag ?? data.id;
+          let generated = generateSceneFromTag(sceneTag, data.id, { width, height });
+          if (!generated) {
+            const fallbackKeys: ('mia' | 'lga' | 'dfw' | 'mco' | 'federal')[] = ['mia', 'lga', 'dfw', 'mco', 'federal'];
+            const key = fallbackKeys[hashString(data.id) % fallbackKeys.length];
+            generated = generateSceneFromTag(key, data.id, { width, height });
+          }
+
+          if (generated) {
+            const compositeCanvas = await rasterizeSVG(generated.svg, width, height);
+            if (cancelled) return;
+            canvasRef.current = compositeCanvas;
+
+            if (mobile) {
+              setStaticDataURL(svgToDataURL(generated.svg));
+            } else {
+              const splitLayers = await rasterizeLayers(generated.svg, width, height);
+              if (!cancelled) setLayers(splitLayers);
+            }
+            if (!cancelled) setLoading(false);
+            return;
+          }
+
+          // ── Path C: Legacy Canvas-based procedural fallback (extreme edge) ──
+          const generator = new SceneGenerator(width, height);
+          const scene = generator.generate(data.geography_tag ?? 'wide-terminal');
           if (cancelled) return;
-
-          canvasRef.current = sourceCanvas;
-
+          canvasRef.current = scene.canvas;
           if (mobile) {
-            setStaticDataURL(sourceCanvas.toDataURL('image/png'));
+            setStaticDataURL(scene.canvas.toDataURL('image/png'));
           } else {
-            const splitLayers = splitter.split(sourceCanvas);
-            setLayers(splitLayers);
+            const splitter = new LayerSplitter();
+            setLayers(splitter.split(scene.canvas));
           }
         } catch {
-          // Fallback: blank procedural scene
+          // Final hard fallback: deterministic SVG scene by ID hash
           if (!cancelled) {
-            const gen = new SceneGenerator(width, height);
-            const scene = gen.generate('wide-terminal');
-            canvasRef.current = scene.canvas;
-            if (mobile) {
-              setStaticDataURL(scene.canvas.toDataURL('image/png'));
-            } else {
-              setLayers(splitter.split(scene.canvas));
+            const fallbackKeys: ('mia' | 'lga' | 'dfw' | 'mco' | 'federal')[] = ['mia', 'lga', 'dfw', 'mco', 'federal'];
+            const key = fallbackKeys[hashString(data.id) % fallbackKeys.length];
+            const generated = generateSceneFromTag(key, data.id, { width, height });
+            if (generated) {
+              const composite = await rasterizeSVG(generated.svg, width, height);
+              canvasRef.current = composite;
+              if (mobile) {
+                setStaticDataURL(svgToDataURL(generated.svg));
+              } else {
+                setLayers(await rasterizeLayers(generated.svg, width, height));
+              }
             }
           }
         } finally {
@@ -124,7 +162,7 @@ export const IllustrationViewer = forwardRef<IllustrationViewerHandle, Illustrat
       );
     }
 
-    // Mobile: static image with CSS parallax fallback
+    // Mobile: static image (SVG preferred — lossless)
     if (mobile && staticDataURL) {
       return (
         <div style={{ width: '100%', height: '100%', overflow: 'hidden', ...style }}>
