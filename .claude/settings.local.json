@@ -15,7 +15,12 @@
       "Bash(grep -E '\\\\.\\(ts|tsx|json\\)$')",
       "Bash(git cherry-pick *)",
       "Bash(git reset *)",
-      "Bash(git stash *)"
+      "Bash(git stash *)",
+      "Bash(python3 -c \"import json,sys; p=json.load\\(sys.stdin\\); print\\(json.dumps\\({k:v for k,v in {**p.get\\('devDependencies',{}\\), **p.get\\('dependencies',{}\\)}.items\\(\\) if 'vitest' in k or 'playwright' in k or 'jest' in k or 'test' in k.lower\\(\\)}, indent=2\\)\\)\")",
+      "Bash(python3 -c \"import json,sys; p=json.load\\(sys.stdin\\); print\\(json.dumps\\(p.get\\('scripts',{}\\), indent=2\\)\\); print\\('---'\\); vt = p.get\\('devDependencies',{}\\).get\\('vitest',''\\); print\\('vitest:', vt\\)\")",
+      "Bash(ls playwright.config.ts)",
+      "Bash(ls playwright.config.js)",
+      "Bash(python3 -c \"import json,sys; p=json.load\\(sys.stdin\\); deps = {**p.get\\('dependencies',{}\\), **p.get\\('devDependencies',{}\\)}; print\\('jsdom:', deps.get\\('jsdom','not found'\\)\\); print\\('happy-dom:', deps.get\\('happy-dom','not found'\\)\\); print\\('@vitest/browser:', deps.get\\('@vitest/browser','not found'\\)\\)\")"
     ]
   }
 }
