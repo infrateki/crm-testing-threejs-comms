@@ -1,0 +1,61 @@
+/* Google Fonts import */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+/* Playfair Display fallback */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: local('Playfair Display Black'), local('PlayfairDisplay-Black');
+}
+
+/* DM Sans fallback */
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('DM Sans'), local('DMSans-Regular');
+}
+
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: local('DM Sans Medium'), local('DMSans-Medium');
+}
+
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('DM Sans SemiBold'), local('DMSans-SemiBold');
+}
+
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('DM Sans Bold'), local('DMSans-Bold');
+}
+
+/* JetBrains Mono fallback */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('JetBrains Mono'), local('JetBrainsMono-Regular');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('JetBrains Mono Bold'), local('JetBrainsMono-Bold');
+}
