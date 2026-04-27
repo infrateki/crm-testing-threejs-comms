@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Opportunity, OpportunityStatus } from '@/types/opportunity'
 import type { StatusType } from '@/components/ui/StatusBadge'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -7,6 +7,8 @@ import { Tag } from '@/components/ui/Tag'
 import { SectionLabel } from '@/components/ui/SectionLabel'
 import { DeadlineCountdown } from '@/components/ui/DeadlineCountdown'
 import { IllustrationViewer } from '@/components/three/IllustrationViewer'
+import { BuildingPreview3D } from '@/components/three/BuildingPreview3D'
+import { useInView } from '@/hooks/useInView'
 import { formatCurrency } from '@/utils/format'
 
 function toStatusType(status: OpportunityStatus): StatusType {
@@ -24,6 +26,21 @@ interface OpportunityCardProps {
 
 export function OpportunityCard({ opportunity, onClick }: OpportunityCardProps) {
   const [hovered, setHovered] = useState(false)
+  const [previewRef, inView] = useInView<HTMLDivElement>({ rootMargin: '100px 0px' })
+
+  // Photo-card overlay: mount the 3D Canvas while hovered AND keep it mounted
+  // for ~400ms after mouseleave so the cross-fade can complete before unmount.
+  const hasPhoto = Boolean(opportunity.illustration_url)
+  const [mountOverlay, setMountOverlay] = useState(false)
+  useEffect(() => {
+    if (!hasPhoto) return
+    if (hovered) {
+      setMountOverlay(true)
+      return
+    }
+    const t = window.setTimeout(() => setMountOverlay(false), 400)
+    return () => window.clearTimeout(t)
+  }, [hovered, hasPhoto])
 
   return (
     <div
@@ -44,17 +61,58 @@ export function OpportunityCard({ opportunity, onClick }: OpportunityCardProps) 
         overflow: 'hidden',
       }}
     >
-      {/* Illustration — parallax activates on hover, lerps back on leave */}
-      <div style={{ height: '200px', overflow: 'hidden', position: 'relative' }}>
-        <IllustrationViewer
-          data={{
-            id: opportunity.id,
-            illustration_url: opportunity.illustration_url,
-            geography_tag: opportunity.naics_code ?? undefined,
-          }}
-          intensity={hovered ? 0.02 : 0}
-          style={{ width: '100%', height: '200px' }}
-        />
+      {/* Illustration — visibility-gated; cards with a photo show ink-sketch
+          parallax by default and cross-fade in a 3D model on hover. Cards
+          without a photo show the rotating 3D model directly. */}
+      <div
+        ref={previewRef}
+        style={{
+          height: '200px',
+          overflow: 'hidden',
+          position: 'relative',
+          background: '#FAF8F3',
+        }}
+      >
+        {hasPhoto ? (
+          <>
+            <IllustrationViewer
+              data={{
+                id: opportunity.id,
+                illustration_url: opportunity.illustration_url,
+                geography_tag: opportunity.naics_code ?? undefined,
+              }}
+              intensity={hovered ? 0.02 : 0}
+              style={{ position: 'absolute', inset: 0 }}
+            />
+            {inView && mountOverlay && (
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  opacity: hovered ? 1 : 0,
+                  transition: 'opacity 0.3s ease',
+                  pointerEvents: 'none',
+                }}
+              >
+                <BuildingPreview3D
+                  opportunity={opportunity}
+                  hovered={hovered}
+                  showGrid={false}
+                  transparent
+                />
+              </div>
+            )}
+          </>
+        ) : inView ? (
+          <BuildingPreview3D
+            opportunity={opportunity}
+            hovered={hovered}
+            showGrid
+          />
+        ) : (
+          // Off-screen placeholder — reserves height without spawning a Canvas
+          <div style={{ width: '100%', height: '100%' }} />
+        )}
       </div>
 
       {/* Content */}
@@ -76,7 +134,6 @@ export function OpportunityCard({ opportunity, onClick }: OpportunityCardProps) 
           {opportunity.title}
         </h3>
 
-        {/* Inline stats */}
         <div style={{ display: 'flex', gap: '24px', marginBottom: '14px' }}>
           <div>
             <div
@@ -135,7 +192,6 @@ export function OpportunityCard({ opportunity, onClick }: OpportunityCardProps) 
           )}
         </div>
 
-        {/* Status row */}
         <div
           style={{
             display: 'flex',
@@ -148,7 +204,6 @@ export function OpportunityCard({ opportunity, onClick }: OpportunityCardProps) 
           <TierBadge tier={`T${opportunity.tier}` as 'T1' | 'T2' | 'T3'} />
         </div>
 
-        {/* Tags */}
         {opportunity.tags.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             {opportunity.tags.slice(0, 3).map((tag) => (
