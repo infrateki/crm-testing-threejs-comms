@@ -12,10 +12,12 @@ export function Header() {
   return (
     <header style={styles.header}>
       <div style={styles.inner}>
-        <div style={styles.brand}>
-          <span style={styles.wordmark}>BIMSEARCH</span>
-          <span style={styles.subtitle}>Command Center</span>
-        </div>
+        <NavLink to="/" end style={{ textDecoration: 'none' }}>
+          <div style={styles.brand}>
+            <span style={styles.wordmark}>BIMSEARCH</span>
+            <span style={styles.subtitle}>Command Center</span>
+          </div>
+        </NavLink>
         <nav style={styles.nav}>
           {navItems.map(({ label, to }) => (
             <NavLink

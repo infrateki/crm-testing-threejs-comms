@@ -14,13 +14,21 @@ export type GeographyTag =
 type SceneType = 'terminal-curved' | 'federal-building' | 'wide-terminal' | 'modern-angular' | 'curved-tower';
 
 function resolveScene(tag: string): SceneType {
-  const t = tag.toLowerCase();
-  if (t.includes('mia') || t.includes('miami')) return 'terminal-curved';
+  const t = tag.toLowerCase().replace(/\s+/g, '');
+  // NAICS code prefixes
+  if (t.startsWith('236')) return 'terminal-curved';
+  if (t.startsWith('2371')) return 'wide-terminal';
+  if (t.startsWith('2373')) return 'wide-terminal';
+  if (t.startsWith('2379')) return 'curved-tower';
+  if (t.startsWith('237')) return 'wide-terminal';
+  if (t.startsWith('238') || t.startsWith('561')) return 'federal-building';
+  if (t.startsWith('5')) return 'federal-building';
+  // Airport / city tags
+  if (t.includes('mia') || t.includes('miami') || t.includes('sju') || t.includes('puertorico')) return 'terminal-curved';
   if (t.includes('federal') || t.includes('sam') || t.includes('usace') || t.includes('court')) return 'federal-building';
-  if (t.includes('dfw') || t.includes('dallas') || t.includes('fort worth')) return 'wide-terminal';
-  if (t.includes('lga') || t.includes('laguardia') || t.includes('new york') || t.includes('nyc')) return 'modern-angular';
+  if (t.includes('dfw') || t.includes('dallas') || t.includes('fortworth')) return 'wide-terminal';
+  if (t.includes('lga') || t.includes('laguardia') || t.includes('newyork') || t.includes('nyc')) return 'modern-angular';
   if (t.includes('mco') || t.includes('orlando')) return 'curved-tower';
-  // Default: wide-terminal for unknown airport tags
   return 'wide-terminal';
 }
 
