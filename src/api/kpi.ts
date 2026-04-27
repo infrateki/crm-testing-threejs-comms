@@ -35,6 +35,8 @@ export function useKPI() {
     queryKey: ['kpi'],
     queryFn: () => apiFetch<KPIData>('/api/kpi'),
     staleTime: 30_000,
+    retry: 1,
+    retryDelay: 3_000,
     refetchOnWindowFocus: true,
   });
 }
@@ -44,6 +46,8 @@ export function useDeadlines(days = 30) {
     queryKey: ['deadlines', days],
     queryFn: () => apiFetch<DeadlineItem[]>(`/api/deadlines?days=${days}`),
     staleTime: 30_000,
+    retry: 1,
+    retryDelay: 3_000,
     refetchOnWindowFocus: true,
   });
 }
@@ -53,6 +57,8 @@ export function useAlerts() {
     queryKey: ['alerts'],
     queryFn: () => apiFetch<AlertItem[]>('/api/alerts'),
     staleTime: 30_000,
+    retry: 1,
+    retryDelay: 3_000,
     refetchOnWindowFocus: true,
   });
 }

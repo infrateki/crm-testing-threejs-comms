@@ -8,6 +8,7 @@ export type BuildingScene = 'mia' | 'lga' | 'dfw' | 'mco' | 'federal' | 'generic
 
 export const STD_COLOR = '#2C3E50'
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function resolveScene(
   opportunity?: Opportunity,
   geographyTag?: string,

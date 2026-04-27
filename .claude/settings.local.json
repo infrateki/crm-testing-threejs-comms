@@ -20,7 +20,11 @@
       "Bash(npx tsx *)",
       "Bash(echo \"exit=$?\")",
       "Bash(git diff-tree *)",
-      "Bash(git pull *)"
+      "Bash(git pull *)",
+      "Bash(echo \"server-exit=$?\")",
+      "Bash(echo \"src-exit=$?\")",
+      "Bash(echo \"src=$?\")",
+      "Bash(echo \"server=$?\")"
     ]
   }
 }

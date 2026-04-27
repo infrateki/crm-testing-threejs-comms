@@ -6,7 +6,7 @@ import { opportunitiesRoutes } from './routes/opportunities.js';
 import { portalsRoutes } from './routes/portals.js';
 import { kpiRoutes } from './routes/kpi.js';
 import { inkProcessRoutes } from './routes/ink-process.js';
-import { addClient, broadcast } from './ws/pipeline.js';
+import { addClient, clientCount } from './ws/pipeline.js';
 
 const PORT = parseInt(process.env['PORT'] ?? '3001', 10);
 
@@ -32,7 +32,7 @@ fastify.get('/ws/pipeline', { websocket: true }, (socket) => {
 });
 
 // Health check
-fastify.get('/health', async () => ({ ok: true, clients: broadcast.length }));
+fastify.get('/health', async () => ({ ok: true, clients: clientCount() }));
 
 try {
   await fastify.listen({ port: PORT, host: '0.0.0.0' });

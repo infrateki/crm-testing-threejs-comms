@@ -7,6 +7,8 @@ export function usePortals() {
     queryKey: ['portals'],
     queryFn: () => apiFetch<Portal[]>('/api/portals'),
     staleTime: 60_000,
+    retry: 1,
+    retryDelay: 3_000,
     refetchOnWindowFocus: true,
   });
 }

@@ -37,6 +37,8 @@ export function useOpportunities(filters?: OpportunityFilters) {
     queryFn: () =>
       apiFetch<OpportunitiesResponse>(`/api/opportunities${qs ? `?${qs}` : ''}`),
     staleTime: 60_000,
+    retry: 1,
+    retryDelay: 3_000,
     refetchOnWindowFocus: true,
   });
 }
@@ -47,6 +49,8 @@ export function useOpportunity(id: string) {
     queryFn: () => apiFetch<Opportunity>(`/api/opportunities/${id}`),
     staleTime: 60_000,
     enabled: Boolean(id),
+    retry: 1,
+    retryDelay: 3_000,
     refetchOnWindowFocus: true,
   });
 }
