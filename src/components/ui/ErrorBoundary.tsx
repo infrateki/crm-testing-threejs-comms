@@ -43,6 +43,7 @@ interface ErrorFallbackProps {
   onRetry: () => void;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 function ErrorFallback({ error, onRetry }: ErrorFallbackProps) {
   return (
     <div className="error-boundary">
@@ -64,6 +65,7 @@ function ErrorFallback({ error, onRetry }: ErrorFallbackProps) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 function GeometricArt() {
   return (
     <svg

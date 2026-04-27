@@ -15,4 +15,17 @@ export default defineConfig({
   worker: {
     format: 'es',
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'three-vendor': ['three', '@react-three/fiber', '@react-three/drei'],
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'motion-vendor': ['framer-motion'],
+          'query-vendor': ['@tanstack/react-query', 'zustand'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 600,
+  },
 })
