@@ -1,522 +1,108 @@
-# COMMS.md — Terminal Orchestration Board
-## BIMSEARCH Command Center
+# COMMS.md — BIMSEARCH Command Center Roadmap
 
-**Last updated:** April 27, 2026 · by Integration Verifier
-**Status:** ✅ INTEGRATION COMPLETE
-**Repo:** https://github.com/infrateki/crm-testing-threejs-comms.git
+**Status:** Phase 2 — Feature Build
+**Last updated:** April 27, 2026
 
 ---
 
-## HOW TO USE THIS FILE
+## CURRENT STATE
 
-Each Claude Code terminal MUST:
-1. **READ this file** at the start of every task
-2. **UPDATE your section** when you start/finish work
-3. **CHECK blockers** before modifying shared files
-4. **NEVER modify another terminal's owned files** without updating this file first
-5. **When done with a task**, change its status to ✅ and add a timestamp
+Phase 1 scaffold complete: all views, components, types, stores, engine, and tests built. Build passes, 48 tests green. Running on demo data (_fixtures.ts). No server deps installed yet.
 
----
-
-## PROJECT STATUS
-
-| Component | Terminal | Status | Last Update | Notes |
-|---|---|---|---|---|
-| Foundation + Design System | T1 | ✅ DONE | 2026-04-27 | Build passes, all exports ready |
-| Data Layer + API Server | T2 | ✅ DONE | 2026-04-27 | tsc clean (T2 files); server deps need installing |
-| Ink Engine + Three.js | T3 | ✅ DONE | 2026-04-27 | tsc ✅ build ✅ — ink engine, Three.js parallax, procedural scenes |
-| Views + Cards | T4 | ✅ DONE | 2026-04-27 | tsc ✅ build ✅ — all 6 views, 3 card types, stats |
-| Export + Polish + Tests | T5 | ✅ DONE | 2026-04-27 | P26–P33 complete |
-| **Integration** | **Verifier** | **✅ DONE** | **2026-04-27** | **tsc ✅ build ✅ lint ✅ tests 48/48 ✅** |
+**Known issues:**
+- Procedural illustrations look basic (geometric shapes, not Titan-quality ink sketches)
+- No CRUD — opportunities are read-only demo data
+- No contact management
+- Image assignment from InkProcessor doesn't work
+- No data persistence (page refresh resets to demo data)
+- Fastify server deps not in package.json (frontend works standalone)
 
 ---
 
-## TASK BOARD
+## PHASE 2 ROADMAP
 
-| # | Task | Owner | Status | File(s) |
-|---|---|---|---|---|
-| P1 | Project scaffold (Vite+React+TS), install ALL deps | T1 | ✅ DONE | package.json, vite.config.ts, tsconfig.json, index.html |
-| P2 | Design system: CSS reset, tokens, font loading, CSS vars | T1 | ✅ DONE | src/design/* |
-| P3 | Layout shell: Header, KPIBar, Footer, Shell wrapper | T1 | ✅ DONE | src/components/layout/* |
-| P4 | Shared UI primitives: StatusBadge, TierBadge, Tag, SectionLabel, SearchInput, DeadlineCountdown | T1 | ✅ DONE | src/components/ui/* |
-| P5 | Route structure with lazy loading | T1 | ✅ DONE | src/App.tsx, src/main.tsx |
-| P6 | TypeScript interfaces: Opportunity, Portal, Contact, CardConfig, Pipeline enums | T2 | ✅ DONE | src/types/* |
-| P7 | Zustand stores: useOpportunityStore, useUIStore, useProcessorStore | T2 | ✅ DONE | src/store/* |
-| P8 | API client + TanStack Query hooks for all endpoints | T2 | ✅ DONE | src/api/* |
-| P9 | Fastify server: REST endpoints, DB pool, SQL queries | T2 | ✅ DONE | server/* |
-| P10 | WebSocket handler for real-time pipeline updates | T2 | ✅ DONE | server/ws/*, src/api/websocket.ts |
-| P11 | Utility functions: format.ts, scoring.ts | T2 | ✅ DONE | src/utils/format.ts, src/utils/scoring.ts |
-| P12 | InkSketchProcessor: grayscale, blur, Sobel, threshold, line-weight, hatching, paper composite | T3 | ✅ DONE | src/engine/ink-processor/* |
-| P13 | Web Worker wrapper for ink processing | T3 | ✅ DONE | src/engine/ink-processor/processor.worker.ts |
-| P14 | Layer splitter with alpha-feathered masks | T3 | ✅ DONE | src/engine/layer-splitter/* |
-| P15 | Three.js R3F components: ParallaxScene, DepthLayer, ParallaxController, IllustrationViewer | T3 | ✅ DONE | src/components/three/* |
-| P16 | Procedural illustration generator: 5 scene types + 5 primitives | T3 | ✅ DONE | src/engine/procedural/* |
-| P17 | 3 ink presets (ink-heavy, ink-light, ink-architectural) | T3 | ✅ DONE | src/engine/ink-processor/presets.ts |
-| P18 | StatsBar + StatValue + CountUp components | T4 | ✅ DONE | src/components/stats/* |
-| P19 | OpportunityCard (compact grid), HeroSplitCard (detail), CompactKanbanCard (kanban) | T4 | ✅ DONE | src/components/cards/OpportunityCard.tsx, HeroSplitCard.tsx, CompactKanbanCard.tsx |
-| P20 | Dashboard view: KPI stats, hero card, deadlines, scan status, team workload | T4 | ✅ DONE | src/views/Dashboard.tsx |
-| P21 | Showcase view: responsive card grid, filters, search, sort, staggered animations | T4 | ✅ DONE | src/views/Showcase.tsx |
-| P22 | OpportunityDetail view: hero-split + tabs (contacts/docs/actions/timeline) | T4 | ✅ DONE | src/views/OpportunityDetail.tsx |
-| P23 | Pipeline kanban: 7 columns, drag-drop, optimistic update, owner filter | T4 | ✅ DONE | src/views/Pipeline.tsx |
-| P24 | InkProcessor view: file upload, live preview, controls, pipeline visualization | T4 | ✅ DONE | src/views/InkProcessor.tsx |
-| P25 | PortalHealth view: status table with color-coded rows | T4 | ✅ DONE | src/views/PortalHealth.tsx |
-| P26 | CardExporter: PNG from Three.js + text overlay, SVG with embedded illustration | T5 | ✅ DONE | src/components/cards/CardExporter.tsx, src/utils/export.ts |
-| P27 | CardBuilder view: manual card creation from data | T5 | ✅ DONE | src/views/CardBuilder.tsx |
-| P28 | Photo upload flow: file picker → process → save → update Three.js scene | T5 | ✅ DONE | src/hooks/usePhotoUpload.ts |
-| P29 | Animations: page transitions, staggered reveals, entrance animations | T5 | ✅ DONE | src/design/animations.css |
-| P30 | Responsive: tablet 768px + mobile 375px, Three.js → CSS fallback on mobile | T5 | ✅ DONE | src/hooks/useIsMobile.ts + owned files |
-| P31 | Error boundaries, loading skeletons (paper-grain aesthetic), empty states | T5 | ✅ DONE | src/components/ui/ErrorBoundary.tsx, LoadingSkeleton.tsx, EmptyState.tsx |
-| P32 | Unit tests: ink processor, scoring, formatting | T5 | ✅ DONE | tests/unit/* |
-| P33 | E2E tests: showcase, detail, kanban | T5 | ✅ DONE | tests/e2e/* |
+### P2.1 — Titan-Quality Illustrations (HIGH PRIORITY)
+Replace basic procedural scenes with detailed SVG architectural illustrations:
+- 5 SVG scenes: MIA terminal, LGA/NYC, DFW, MCO, Federal building
+- 300-500 path elements each, cross-hatching, atmospheric perspective
+- 3 depth layers per scene for Three.js parallax
+- Varying stroke widths (0.3-2px), hand-drawn imperfection
+- Quality bar: looks like Titan website NYC illustration
 
----
+### P2.2 — Full CRUD
+- Create opportunity: modal form from Showcase + "+" in kanban columns
+- Edit opportunity: inline edit mode on OpportunityDetail
+- Delete opportunity: confirmation modal, bulk delete from Showcase
+- Zustand persist middleware → localStorage for all data
+- "Reset to Demo Data" button for dev/testing
 
-## FILE OWNERSHIP
+### P2.3 — Contact Management
+- /contacts route: global contacts directory table
+- Link/unlink contacts to opportunities
+- Add/edit/delete contacts on OpportunityDetail
+- Search/filter contacts by name, org, role
 
-Terminals MUST respect file ownership. To modify a file owned by another terminal, update COMMS.md first.
+### P2.4 — Activity Notes
+- Notes section on OpportunityDetail
+- Chronological entries with author + timestamp
+- "Add a note..." input
+- Persisted in Zustand/localStorage
 
-```
-T1 owns:
-  - package.json (PRIMARY — installs ALL deps for entire project)
-  - vite.config.ts
-  - tsconfig.json
-  - index.html
-  - public/fonts/*
-  - src/main.tsx
-  - src/App.tsx
-  - src/design/tokens.ts
-  - src/design/global.css
-  - src/design/fonts.css
-  - src/components/layout/Header.tsx
-  - src/components/layout/KPIBar.tsx
-  - src/components/layout/Footer.tsx
-  - src/components/layout/Shell.tsx
-  - src/components/ui/StatusBadge.tsx
-  - src/components/ui/TierBadge.tsx
-  - src/components/ui/Tag.tsx
-  - src/components/ui/SectionLabel.tsx
-  - src/components/ui/SearchInput.tsx
-  - src/components/ui/DeadlineCountdown.tsx
+### P2.5 — Pipeline Kanban Enhancements
+- "..." context menu on cards: change status/owner/tier, edit, delete
+- Column totals: pipeline value sum per column
+- Quick-add: "+" at bottom of column, minimal inline form
 
-T2 owns:
-  - src/types/opportunity.ts
-  - src/types/portal.ts
-  - src/types/contact.ts
-  - src/types/card-config.ts
-  - src/types/pipeline.ts
-  - src/store/useOpportunityStore.ts
-  - src/store/useUIStore.ts
-  - src/store/useProcessorStore.ts
-  - src/api/client.ts
-  - src/api/opportunities.ts
-  - src/api/portals.ts
-  - src/api/kpi.ts
-  - src/api/websocket.ts
-  - src/utils/format.ts
-  - src/utils/scoring.ts
-  - server/index.ts
-  - server/routes/opportunities.ts
-  - server/routes/portals.ts
-  - server/routes/kpi.ts
-  - server/routes/ink-process.ts
-  - server/db/pool.ts
-  - server/db/queries.ts
-  - server/ws/pipeline.ts
+### P2.6 — 3D Showcase Elements
+- Dashboard: subtle wireframe background behind KPI stats
+- OpportunityDetail: "3D Preview" tab with interactive building model
+- InkProcessor: live Three.js parallax preview after processing
+- ThreeSpinner: wireframe cube loading indicator
+- All skip on mobile
 
-T3 owns:
-  - src/engine/ink-processor/InkSketchProcessor.ts
-  - src/engine/ink-processor/grayscale.ts
-  - src/engine/ink-processor/gaussian-blur.ts
-  - src/engine/ink-processor/sobel-edges.ts
-  - src/engine/ink-processor/adaptive-threshold.ts
-  - src/engine/ink-processor/line-weight.ts
-  - src/engine/ink-processor/hatching.ts
-  - src/engine/ink-processor/paper-composite.ts
-  - src/engine/ink-processor/processor.worker.ts
-  - src/engine/ink-processor/presets.ts
-  - src/engine/layer-splitter/LayerSplitter.ts
-  - src/engine/layer-splitter/alpha-feather.ts
-  - src/engine/layer-splitter/auto-segment.ts
-  - src/engine/procedural/SceneGenerator.ts
-  - src/engine/procedural/scenes/terminal-curved.ts
-  - src/engine/procedural/scenes/federal-building.ts
-  - src/engine/procedural/scenes/wide-terminal.ts
-  - src/engine/procedural/scenes/modern-angular.ts
-  - src/engine/procedural/scenes/curved-tower.ts
-  - src/engine/procedural/primitives/palm-tree.ts
-  - src/engine/procedural/primitives/crane.ts
-  - src/engine/procedural/primitives/runway.ts
-  - src/engine/procedural/primitives/jet-bridge.ts
-  - src/engine/procedural/primitives/city-skyline.ts
-  - src/components/three/ParallaxScene.tsx
-  - src/components/three/DepthLayer.tsx
-  - src/components/three/ParallaxController.tsx
-  - src/components/three/IllustrationViewer.tsx
+### P2.7 — Image Pipeline
+- Download/generate quality images for each demo opportunity
+- InkProcessor "Assign to Opportunity" button working
+- Photo upload → ink process → layer split → save to opportunity
+- Zustand persistence for illustration URLs
 
-T4 owns:
-  - src/components/stats/StatsBar.tsx
-  - src/components/stats/StatValue.tsx
-  - src/components/stats/CountUp.tsx
-  - src/components/cards/OpportunityCard.tsx
-  - src/components/cards/HeroSplitCard.tsx
-  - src/components/cards/CompactKanbanCard.tsx
-  - src/views/Dashboard.tsx
-  - src/views/Showcase.tsx
-  - src/views/OpportunityDetail.tsx
-  - src/views/Pipeline.tsx
-  - src/views/InkProcessor.tsx
-  - src/views/PortalHealth.tsx
+### P2.8 — Server Integration
+- Install Fastify deps: fastify @fastify/cors @fastify/websocket @fastify/multipart pg
+- Connect to Postgres (BIMSEARCH existing DB)
+- Wire API hooks to real endpoints
+- WebSocket for real-time scan updates
+- GHL sync (bidirectional)
 
-T5 owns:
-  - src/components/cards/CardExporter.tsx
-  - src/utils/export.ts
-  - src/views/CardBuilder.tsx
-  - src/design/animations.css
-  - src/components/ui/ErrorBoundary.tsx
-  - src/components/ui/LoadingSkeleton.tsx
-  - src/components/ui/EmptyState.tsx
-  - src/hooks/useIsMobile.ts
-  - src/hooks/usePhotoUpload.ts
-  - tests/unit/ink-processor.test.ts
-  - tests/unit/layer-splitter.test.ts
-  - tests/unit/scoring.test.ts
-  - tests/e2e/showcase.spec.ts
-  - tests/e2e/detail.spec.ts
-  - tests/e2e/processor.spec.ts
-
-SHARED (coordinate writes via COMMS.md):
-  - COMMS.md (all terminals)
-  - CLAUDE.md (orchestrator only)
-```
+### P2.9 — Production Polish
+- Responsive audit: 375px / 768px / 1024px breakpoints
+- Lighthouse: Performance >90, Accessibility >85
+- Bundle analysis: target <300KB gzipped (excluding Three.js)
+- Export pipeline deck: multi-card PDF generation
+- Deploy to Vercel
 
 ---
 
-## TERMINAL LOG
-
-### T1 — Foundation + Design System
-```
-2026-04-27 STARTED: T1 foundation scaffold
-2026-04-27 DONE: P1–P5 complete. Build: tsc --noEmit ✅, npm run build ✅
-
-EXPORTS AVAILABLE FOR T2–T5:
-  src/design/tokens.ts
-    - colors (bg, ink, accent, status, stage, border)
-    - typography (fonts, scale)
-    - spacing, card, breakpoints
-
-  src/components/layout/Shell.tsx
-    - Shell({ children, kpiBar? }) — layout wrapper
-
-  src/components/layout/KPIBar.tsx
-    - KPIBar({ stats: { label, value }[] })
-
-  src/components/ui/StatusBadge.tsx
-    - StatusBadge({ status: StatusType })
-    - StatusType = 'tracking' | 'pursuing' | 'submitted' | 'won' | 'lost'
-
-  src/components/ui/TierBadge.tsx
-    - TierBadge({ tier: TierLevel })
-    - TierLevel = 'T1' | 'T2' | 'T3'
-
-  src/components/ui/Tag.tsx
-    - Tag({ children })
-
-  src/components/ui/SectionLabel.tsx
-    - SectionLabel({ children })
-
-  src/components/ui/SearchInput.tsx
-    - SearchInput({ value, onChange, placeholder? })
-
-  src/components/ui/DeadlineCountdown.tsx
-    - DeadlineCountdown({ deadline: Date | string })
-
-  src/views/* — stub views for T4 to replace (Dashboard, Showcase, OpportunityDetail,
-    Pipeline, PortalHealth, InkProcessor, CardBuilder)
-
-CSS VARS: all --bg-*, --ink-*, --accent-*, --status-*, --stage-*, --border*,
-  --font-headline/body/mono, --content-padding, --grid-gap, --section-spacing,
-  --card-radius, --card-shadow
-
-ROUTE PATHS:
-  / → Dashboard
-  /showcase → Showcase
-  /opportunities/:id → OpportunityDetail
-  /pipeline → Pipeline
-  /portals → PortalHealth
-  /processor → InkProcessor
-  /card-builder → CardBuilder
-```
-
-### T2 — Data Layer + API Server
-```
-2026-04-27 STARTED: T2 data layer build (branch: t2/data-layer)
-2026-04-27 DONE: P6–P11 complete.
-  - tsc --noEmit: PASSES for all T2-owned files. Zero T2 errors.
-  - Pre-existing T3 tsc errors in src/engine/ink-processor/processor.worker.ts
-    (ArrayBufferLike vs ArrayBuffer — T3 must fix before full tsc passes)
-  - Server deps missing from package.json — T1/orchestrator must add:
-      fastify  @fastify/cors  @fastify/websocket  @fastify/multipart
-      pg  @types/pg
-    (server runs via tsx; tsc --noEmit excludes server/ directory)
-
-EXPORTS AVAILABLE FOR T3–T5:
-
-  src/types/opportunity.ts
-    - Opportunity, OpportunityStatus (9 values), Tier (1|2|3), Score, StatItem, Photo
-
-  src/types/contact.ts
-    - Contact
-
-  src/types/portal.ts
-    - Portal, ScanMethod, ScanFrequency, LastScanStatus
-
-  src/types/card-config.ts
-    - CardConfig, CardLayout, CardTheme, IllustrationStyle, AnimationStyle
-
-  src/types/pipeline.ts
-    - PipelineStage, PIPELINE_STAGES (tuple), STAGE_METADATA, StageMetadata
-
-  src/store/useOpportunityStore.ts
-    - useOpportunityStore — opportunities Map, filters, selectedId, sortBy/sortOrder
-    - OpportunityFilters, SortBy, SortOrder (exported types)
-
-  src/store/useUIStore.ts
-    - useUIStore — activeView, selectedOpportunityId, isModalOpen, sidebarCollapsed
-    - ActiveView (exported type)
-
-  src/store/useProcessorStore.ts
-    - useProcessorStore — currentImage, processingState, result, config
-    - ProcessorConfig, ProcessingState, InkPreset (exported types)
-
-  src/api/client.ts
-    - apiFetch<T>(path, options?) — typed fetch wrapper
-    - BASE_URL — derived from VITE_API_URL env var
-    - ApiError (class with .status)
-
-  src/api/opportunities.ts
-    - useOpportunities(filters?) — paginated list, stale 60s
-    - useOpportunity(id) — single with joins, stale 60s
-    - useUpdateOpportunity() — optimistic kanban updates
-    - useUploadPhoto() — multipart photo upload
-    - OpportunitiesResponse, OpportunityFilters (exported types)
-
-  src/api/portals.ts
-    - usePortals() — stale 60s
-
-  src/api/kpi.ts
-    - useKPI() — stale 30s
-    - useDeadlines(days=30) — stale 30s
-    - useAlerts() — stale 30s
-    - KPIData, DeadlineItem, AlertItem (exported types)
-
-  src/api/websocket.ts
-    - useWebSocket() — registers listener, auto-invalidates TanStack cache
-    - pipelineSocket — PipelineWebSocket instance (add/remove listeners)
-    - WsMessage, WsMessageType (exported types)
-
-  src/utils/format.ts
-    - formatCurrency($137.8M style), formatDate, formatDaysUntil, formatNumber
-
-  src/utils/scoring.ts
-    - getScoreColor(score), getTierLabel(tier)
-    - getStatusLabel(status), getStatusColor(status)
-```
-
-### T3 — Ink Engine + Three.js
-```
-2026-04-27 STARTED: T3 ink engine + Three.js
-2026-04-27 DONE: P12–P17 complete. tsc --noEmit ✅  npm run build ✅
-
-EXPORTS AVAILABLE FOR T4–T5:
-
-  src/engine/ink-processor/InkSketchProcessor.ts
-    - InkSketchProcessor class
-      .process(image, config) → Promise<ProcessorResult>
-      .processWithIntermediates(image, config) → Promise<ProcessorResult>
-      .dispose()
-
-  src/engine/ink-processor/types.ts
-    - ProcessorConfig, ProcessorResult, LayerOutput, WorkerRequest, WorkerResponse
-    - LineWeight = 'heavy' | 'medium' | 'light'
-
-  src/engine/ink-processor/presets.ts
-    - PRESETS: { 'ink-heavy', 'ink-light', 'ink-architectural' }
-    - PresetName
-
-  src/engine/layer-splitter/LayerSplitter.ts
-    - LayerSplitter class
-      .split(source: HTMLCanvasElement | ImageData) → LayerOutput[]
-    - 3 layers: background (depth=10, factor=0.3), midground (depth=5, factor=0.8), foreground (depth=1, factor=1.5)
-
-  src/engine/procedural/SceneGenerator.ts
-    - SceneGenerator class (new SceneGenerator(width?, height?))
-      .generate(geographyTag) → { canvas, dataURL, sceneType }
-    - Tags: 'mia'|'miami' → terminal-curved, 'federal'|'sam'|'usace' → federal-building,
-            'dfw'|'dallas' → wide-terminal, 'lga'|'new-york' → modern-angular,
-            'mco'|'orlando' → curved-tower
-
-  src/components/three/IllustrationViewer.tsx
-    - IllustrationViewer (forwardRef) — primary consumer component
-    - Props: { data: IllustrationData, width?, height?, style? }
-    - IllustrationData: { id, illustration_url?, geography_tag? }
-    - Ref: IllustrationViewerHandle → getCanvas() for T5 export
-    - Mobile auto-detects and skips Three.js, renders static img
-
-  src/components/three/ParallaxScene.tsx
-    - ParallaxScene({ layers: LayerOutput[], intensity?, style? })
-    - Orthographic R3F Canvas, frameloop="demand", dpr capped at 2
-
-  src/components/three/DepthLayer.tsx
-    - DepthLayer({ dataURL, depth, parallaxFactor, mouseRef, intensity? })
-
-  src/components/three/ParallaxController.tsx
-    - ParallaxController({ containerRef, onInvalidate, children })
-    - ParallaxControllerHandle, MouseState
-```
-
-### T4 — Views + Cards
-```
-2026-04-27 STARTED: T4 views + cards build (branch: t4/views-cards)
-2026-04-27 DONE: P18–P25 complete. tsc --noEmit ✅  npm run build ✅
-
-EXPORTS AVAILABLE FOR T5:
-
-  src/components/stats/StatsBar.tsx
-    - StatsBar({ stats: StatItem[], theme?: 'light' | 'cream' })
-
-  src/components/stats/StatValue.tsx
-    - StatValue({ value, label }: StatItem)
-
-  src/components/stats/CountUp.tsx
-    - CountUp({ target, label?, duration?, prefix?, suffix?, decimals? })
-    - Animates 0→target on IntersectionObserver entry
-
-  src/components/cards/OpportunityCard.tsx
-    - OpportunityCard({ opportunity: Opportunity, onClick? })
-    - Uses IllustrationViewer({ data: { id, geography_tag } })
-    - 380px min-width, hover scale + shadow
-
-  src/components/cards/HeroSplitCard.tsx
-    - HeroSplitCard({ opportunity, config?, onUploadPhoto? })
-    - 50/50 grid: IllustrationViewer left, content right
-    - StatsBar below
-
-  src/components/cards/CompactKanbanCard.tsx
-    - CompactKanbanCard({ opportunity, onClick?, isDragging? })
-    - isDragging: elevated shadow + rotation
-
-  src/views/Dashboard.tsx — / route
-  src/views/Showcase.tsx — /showcase route
-  src/views/OpportunityDetail.tsx — /opportunities/:id route
-  src/views/Pipeline.tsx — /pipeline route (7-col kanban, drag-drop)
-  src/views/InkProcessor.tsx — /processor route
-  src/views/PortalHealth.tsx — /portals route
-  src/views/_fixtures.ts — DEMO_OPPORTUNITIES, DEMO_KPI, DEMO_DEADLINES, DEMO_PORTALS
-
-NOTES FOR T5:
-  - OpportunityDetail has CardExporter placeholder (T5 owns CardExporter)
-  - IllustrationViewer ref (IllustrationViewerHandle) exposed on HeroSplitCard — T5 can
-    use forwardRef wrapper to capture canvas for PNG export
-  - All views fall back to demo data when API unavailable
-  - InkProcessor uses ProcessorConfig.lineWeight ('heavy'|'medium'|'light') — not preset string
-  - Pipeline kanban excludes 'submitted' and 'dismissed' statuses from PIPELINE_STAGES
-```
-
-### T5 — Export + Polish + Tests
-```
-2026-04-27 STARTED: T5 export + polish + tests (branch: t5/export-polish)
-2026-04-27 DONE: P26–P33 complete. tsc ✅ build ✅ tests ✅
-
-FILES CREATED:
-  src/utils/export.ts — exportAsPNG, exportAsSVG, downloadFile, svgToDataURL
-  src/components/cards/CardExporter.tsx — PNG/SVG/Clipboard export with spinners
-  src/views/CardBuilder.tsx — manual card creation form with live HeroSplitCard preview
-  src/design/animations.css — fadeInUp, fadeIn, slideInRight, shimmer, pulseSubtle
-  src/components/ui/ErrorBoundary.tsx — paper-grain bg, geometric art, retry button
-  src/components/ui/LoadingSkeleton.tsx — cream shimmer variants: card, text-line, stats-bar, illustration
-  src/components/ui/EmptyState.tsx — procedural line-art + contextual message
-  src/hooks/useIsMobile.ts — matchMedia listener, SSR-safe
-  src/hooks/usePhotoUpload.ts — upload → InkSketch → split → PATCH with progress states
-  tests/unit/ink-processor.test.ts — grayscale, Sobel, threshold
-  tests/unit/layer-splitter.test.ts — split returns 3 layers, correct metadata
-  tests/unit/scoring.test.ts — all getScore/getTier/getStatus functions
-  tests/e2e/showcase.spec.ts — grid render, filter, navigation
-  tests/e2e/detail.spec.ts — hero-split, stats, tabs
-  tests/e2e/processor.spec.ts — upload, process, before/after render
-```
-
-### INTEGRATION VERIFIER
-```
-2026-04-27 INTEGRATION PASS COMPLETE
-
-Checks performed:
-  npm run build         ✅ (zero errors; Three.js chunk ~815 kB gzipped 219 kB — expected)
-  npx tsc --noEmit      ✅ (zero type errors across all 92 source files)
-  npm run lint          ✅ (zero warnings — added eslint.config.js for ESLint v9 flat config;
-                           suppressed react-refresh false-positive in ErrorBoundary)
-  npm run test          ✅ 48/48 unit tests pass
-                           scoring.test.ts (24), ink-processor.test.ts (16), layer-splitter.test.ts (8)
-  Dev server            ✅ starts on port 5173/5174, serves correct BIMSEARCH HTML
-
-Fixes applied:
-  1. Created eslint.config.js (ESLint v9 flat config — was missing, lint was crashing)
-  2. Installed @eslint/js + typescript-eslint devDeps
-  3. Added eslint-disable-next-line for ErrorBoundary internal components (react-refresh FP)
-  4. Added vite.config.ts manualChunks (three-vendor, react-vendor, motion-vendor, query-vendor)
-     to eliminate 831 kB monolith and eliminate chunk size warnings beyond Three.js itself
-
-Integration notes:
-  - Dev server confirmed at http://localhost:5174 (5173 occupied by another project)
-  - IllustrationViewer mobile detection: navigator.userAgent + window.innerWidth < 768 ✅
-  - Three.js frameloop="demand" only renders on mouse events ✅
-  - Web Worker emitted as separate chunk: processor.worker-*.js ✅
-  - All 7 routes lazy-loaded ✅
-  - All imports resolve — no missing modules ✅
-
-Outstanding (non-blocking):
-  - Server packages (fastify, pg, etc.) still not in package.json — frontend unaffected
-  - E2E tests require running dev server; not run in this pass (unit tests cover logic)
-```
-
-### ORCHESTRATOR
-```
-2026-04-27: Project decomposed into T1–T5. CLAUDE.md and COMMS.md created.
-2026-04-27: Repo: https://github.com/infrateki/crm-testing-threejs-comms.git
-2026-04-27: Local path: C:\Infratek\repos\crm-testing-threejs-comms
-```
-
----
-
-## BLOCKERS
+## FILE STRUCTURE
 
 ```
-[OPEN] Server packages not in package.json.
-  Add: fastify @fastify/cors @fastify/websocket @fastify/multipart pg @types/pg
-  Frontend (tsc/vite/tests) unaffected. Server won't start without these.
-
-[RESOLVED] ESLint v9 flat config missing — fixed by Integration Verifier (eslint.config.js added)
-[RESOLVED] ErrorBoundary react-refresh lint warning — suppressed with eslint-disable-next-line
-[RESOLVED] T5 merge conflicts on COMMS.md/tsconfig.tsbuildinfo
+src/
+├── api/            # TanStack Query hooks + fetch client
+├── components/
+│   ├── cards/      # OpportunityCard, HeroSplitCard, CompactKanbanCard, CardExporter
+│   ├── layout/     # Header, KPIBar, Footer, Shell
+│   ├── stats/      # StatsBar, StatValue, CountUp
+│   ├── three/      # ParallaxScene, DepthLayer, IllustrationViewer
+│   └── ui/         # Badges, tags, search, countdown, error boundary, skeleton
+├── design/         # tokens.ts, global.css, fonts.css, animations.css
+├── engine/
+│   ├── ink-processor/  # InkSketchProcessor, Web Worker, presets
+│   ├── layer-splitter/ # LayerSplitter, alpha-feather
+│   └── procedural/     # SceneGenerator, scenes/, primitives/
+├── hooks/          # useIsMobile, usePhotoUpload
+├── store/          # Zustand: opportunities, UI, processor
+├── types/          # Opportunity, Portal, Contact, CardConfig, Pipeline
+├── utils/          # format, scoring, export
+└── views/          # Dashboard, Showcase, Detail, Pipeline, Portals, Processor, CardBuilder
+server/             # Fastify routes, DB pool, queries, WebSocket (deps not installed)
+tests/              # unit/ + e2e/
 ```
-
----
-
-## DECISION LOG
-
-| Date | Decision | Made by | Impact |
-|---|---|---|---|
-| 2026-04-27 | No Tailwind — vanilla CSS with custom properties | Sergio/PRD | All terminals use vanilla CSS |
-| 2026-04-27 | Three.js skipped on mobile, CSS fallback only | Sergio/PRD | T3 and T5 must implement detection |
-| 2026-04-27 | Web Worker mandatory for ink processing | Sergio/PRD | T3 must never run Sobel on main thread |
-| 2026-04-27 | Three.js r160+ via @react-three/fiber | Sergio/PRD | T3 uses R3F declarative API |
-| 2026-04-27 | No component libraries | Sergio/PRD | T1 builds all UI primitives from scratch |
-| 2026-04-27 | Deploy to Vercel, Git remote: infrateki/crm-testing-threejs-comms | Sergio | All terminals push to feature branches |
-
----
-
-## NEXT SPRINT
-
-- [ ] GHL bidirectional sync integration
-- [ ] Server-side ink processing with Sharp
-- [ ] "Export Pipeline Deck" multi-card PDF generation
-- [ ] Lighthouse performance audit targeting >90
