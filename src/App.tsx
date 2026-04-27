@@ -2,6 +2,7 @@ import { Suspense, lazy } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Shell } from '@/components/layout/Shell'
+import { ThreeSpinner } from '@/components/three/ThreeSpinner'
 
 const Dashboard = lazy(() => import('@/views/Dashboard').then((m) => ({ default: m.Dashboard })))
 const Showcase = lazy(() => import('@/views/Showcase').then((m) => ({ default: m.Showcase })))
@@ -25,7 +26,7 @@ const queryClient = new QueryClient({
 function AppRoutes() {
   return (
     <Shell>
-      <Suspense fallback={<div style={{ padding: '40px', color: 'var(--ink-muted)' }}>Loading…</div>}>
+      <Suspense fallback={<div style={{ padding: '40px', display: 'flex', alignItems: 'center', gap: '16px', color: 'var(--ink-muted)', fontFamily: 'var(--font-body)', fontSize: '13px' }}><ThreeSpinner />Loading…</div>}>
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/showcase" element={<Showcase />} />

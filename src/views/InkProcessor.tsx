@@ -2,10 +2,13 @@ import { useRef, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { SectionLabel } from '@/components/ui/SectionLabel'
 import { InkSketchProcessor } from '@/engine/ink-processor/InkSketchProcessor'
-import type { ProcessorConfig } from '@/engine/ink-processor/types'
+import { LayerSplitter } from '@/engine/layer-splitter/LayerSplitter'
+import { ParallaxScene } from '@/components/three/ParallaxScene'
+import type { ProcessorConfig, LayerOutput } from '@/engine/ink-processor/types'
 import { useOpportunities } from '@/api/opportunities'
 import type { OpportunitiesResponse } from '@/api/opportunities'
 import { useOpportunityStore } from '@/store/useOpportunityStore'
+import { useIllustrationOverrides } from '@/store/useIllustrationOverrides'
 import { DEMO_OPPORTUNITIES } from './_fixtures'
 
 type Preset = 'ink-heavy' | 'ink-light' | 'ink-architectural'
@@ -49,6 +52,7 @@ function imageDataToDataUrl(data: ImageData): string {
 }
 
 const processor = new InkSketchProcessor()
+const splitter = new LayerSplitter()
 
 export function InkProcessor() {
   const [isDragOver, setIsDragOver] = useState(false)
@@ -62,12 +66,14 @@ export function InkProcessor() {
     ...PRESET_DEFAULTS['ink-architectural'],
   })
 
+  const [parallaxLayers, setParallaxLayers] = useState<LayerOutput[]>([])
   const [showAssign, setShowAssign] = useState(false)
   const [assignOppId, setAssignOppId] = useState('')
   const [assignedTitle, setAssignedTitle] = useState<string | null>(null)
 
   const queryClient = useQueryClient()
   const updateOpportunity = useOpportunityStore((s) => s.updateOpportunity)
+  const setIllustrationOverride = useIllustrationOverrides((s) => s.setOverride)
   const { data: oppsResponse } = useOpportunities()
   const allOpps = oppsResponse?.data ?? DEMO_OPPORTUNITIES
 
@@ -77,6 +83,7 @@ export function InkProcessor() {
   const handleAssign = () => {
     if (!assignOppId || !processedUrl) return
     updateOpportunity(assignOppId, { illustration_url: processedUrl })
+    setIllustrationOverride(assignOppId, processedUrl)
     queryClient.setQueriesData<OpportunitiesResponse>(
       { queryKey: ['opportunities'], exact: false },
       (old) => {
@@ -109,6 +116,7 @@ export function InkProcessor() {
     })
     setProcessedUrl(null)
     setIntermediates([])
+    setParallaxLayers([])
   }
 
   const handleDrop = (e: React.DragEvent) => {
@@ -140,6 +148,7 @@ export function InkProcessor() {
           dataUrl: imageDataToDataUrl(imgData),
         })),
       )
+      setParallaxLayers(splitter.split(result.result))
     } finally {
       setIsProcessing(false)
     }
@@ -556,6 +565,43 @@ export function InkProcessor() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </section>
+          )}
+
+          {/* Parallax 3D preview */}
+          {parallaxLayers.length > 0 && (
+            <section style={{ marginBottom: '32px' }}>
+              <SectionLabel>Parallax Preview</SectionLabel>
+              <div
+                style={{
+                  marginTop: '16px',
+                  height: '320px',
+                  border: '1px solid var(--border)',
+                  borderRadius: '3px',
+                  overflow: 'hidden',
+                  position: 'relative',
+                }}
+              >
+                <ParallaxScene layers={parallaxLayers} intensity={0.02} style={{ height: '100%' }} />
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: '10px',
+                    left: '10px',
+                    background: 'rgba(255,255,255,0.85)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '3px',
+                    padding: '3px 8px',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '10px',
+                    color: 'var(--ink-muted)',
+                    letterSpacing: '0.04em',
+                    pointerEvents: 'none',
+                  }}
+                >
+                  MOVE MOUSE TO ACTIVATE PARALLAX · {parallaxLayers.length} LAYERS
+                </div>
               </div>
             </section>
           )}

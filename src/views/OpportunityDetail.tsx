@@ -3,18 +3,20 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { SectionLabel } from '@/components/ui/SectionLabel'
 import { HeroSplitCard } from '@/components/cards/HeroSplitCard'
 import { StatsBar } from '@/components/stats/StatsBar'
+import { BuildingModel3D } from '@/components/three/BuildingModel3D'
 import { useOpportunity } from '@/api/opportunities'
 import { formatCurrency } from '@/utils/format'
 import type { StatItem } from '@/types/opportunity'
 import { DEMO_OPPORTUNITIES } from './_fixtures'
 
-type TabId = 'contacts' | 'documents' | 'actions' | 'timeline'
+type TabId = 'contacts' | 'documents' | 'actions' | 'timeline' | '3d-preview'
 
 const TABS: { id: TabId; label: string }[] = [
   { id: 'contacts', label: 'Contacts' },
   { id: 'documents', label: 'Documents' },
   { id: 'actions', label: 'Actions' },
   { id: 'timeline', label: 'Timeline' },
+  { id: '3d-preview', label: '3D Preview' },
 ]
 
 export function OpportunityDetail() {
@@ -204,6 +206,32 @@ export function OpportunityDetail() {
             }}
           >
             Timeline available once API is connected. (T2 pending)
+          </div>
+        )}
+        {activeTab === '3d-preview' && (
+          <div>
+            <div
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '12px',
+                color: 'var(--ink-muted)',
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase' as const,
+                marginBottom: '12px',
+              }}
+            >
+              Procedural building model — NAICS {opportunity.naics_code ?? 'N/A'} · Drag to orbit
+            </div>
+            <div
+              style={{
+                height: '480px',
+                border: '1px solid var(--border)',
+                borderRadius: '3px',
+                overflow: 'hidden',
+              }}
+            >
+              <BuildingModel3D naicsCode={opportunity.naics_code} style={{ height: '100%' }} />
+            </div>
           </div>
         )}
       </div>

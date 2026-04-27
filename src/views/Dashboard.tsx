@@ -4,6 +4,7 @@ import { SectionLabel } from '@/components/ui/SectionLabel'
 import { DeadlineCountdown } from '@/components/ui/DeadlineCountdown'
 import { StatsBar } from '@/components/stats/StatsBar'
 import { HeroSplitCard } from '@/components/cards/HeroSplitCard'
+import { WireframeBackground } from '@/components/three/WireframeBackground'
 import { useKPI, useDeadlines } from '@/api/kpi'
 import { useOpportunities } from '@/api/opportunities'
 import { usePortals } from '@/api/portals'
@@ -58,8 +59,13 @@ export function Dashboard() {
 
   return (
     <div>
-      {/* KPI Stats Bar */}
-      <StatsBar stats={kpiStats} theme="cream" />
+      {/* KPI Stats Bar with wireframe background */}
+      <div style={{ position: 'relative', overflow: 'hidden' }}>
+        <WireframeBackground />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <StatsBar stats={kpiStats} theme="cream" />
+        </div>
+      </div>
 
       <div style={{ paddingTop: 'var(--section-spacing)' }}>
         {/* Hot Opportunity */}
