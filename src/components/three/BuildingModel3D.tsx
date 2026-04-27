@@ -58,16 +58,19 @@ export function BuildingModel3D({
         style={{ background: '#FAF8F3' }}
       >
         <Suspense fallback={null}>
-          <ambientLight intensity={0.4} />
-          <directionalLight position={[10, 10, 5]} intensity={0.8} />
+          {/* Improved lighting for wireframe legibility */}
+          <hemisphereLight args={['#ffffff', '#FAF8F3', 0.3]} />
+          <ambientLight intensity={0.35} />
+          <directionalLight position={[10, 10, 5]} intensity={1.0} />
+          <directionalLight position={[-8, 5, -5]} intensity={0.3} />
           {/* Self-rotating group — works under frameloop=demand. User can still
               drag to orbit camera; building keeps spinning underneath. */}
           <SpinningBuilding scene={scene} speed={0.002} />
-          <gridHelper args={[14, 14, '#E5E7EB', '#F3F4F6']} position={[0, -1.7, 0]} />
+          <gridHelper args={[14, 14, '#E5E7EB', '#F3F4F6']} position={[0, -1.05, 0]} />
           <OrbitControls
             enablePan={false}
             minDistance={4}
-            maxDistance={14}
+            maxDistance={16}
           />
         </Suspense>
       </Canvas>

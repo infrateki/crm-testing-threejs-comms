@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import type { Opportunity, OpportunityStatus } from '@/types/opportunity'
 import type { CardConfig } from '@/types/card-config'
 import type { StatusType } from '@/components/ui/StatusBadge'
@@ -5,6 +6,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge'
 import { Tag } from '@/components/ui/Tag'
 import { SectionLabel } from '@/components/ui/SectionLabel'
 import { IllustrationViewer } from '@/components/three/IllustrationViewer'
+import { BuildingPreview3D } from '@/components/three/BuildingPreview3D'
 import { StatsBar } from '@/components/stats/StatsBar'
 import { formatCurrency } from '@/utils/format'
 import type { StatItem } from '@/types/opportunity'
@@ -24,6 +26,22 @@ interface HeroSplitCardProps {
 }
 
 export function HeroSplitCard({ opportunity, onUploadPhoto }: HeroSplitCardProps) {
+  const [hovered, setHovered] = useState(false)
+  const hasPhoto = Boolean(opportunity.illustration_url)
+
+  // Mount the overlay 3D Canvas during hover and keep it mounted briefly after
+  // mouseleave so the cross-fade can complete before unmount.
+  const [mountOverlay, setMountOverlay] = useState(false)
+  useEffect(() => {
+    if (!hasPhoto) return
+    if (hovered) {
+      setMountOverlay(true)
+      return
+    }
+    const t = window.setTimeout(() => setMountOverlay(false), 400)
+    return () => window.clearTimeout(t)
+  }, [hovered, hasPhoto])
+
   const stats: StatItem[] = [
     { label: 'Est. Value', value: formatCurrency(opportunity.value) },
     { label: 'Score', value: opportunity.score.toUpperCase() },
@@ -53,21 +71,83 @@ export function HeroSplitCard({ opportunity, onUploadPhoto }: HeroSplitCardProps
           minHeight: '480px',
         }}
       >
-        {/* Left: Illustration — full bleed, no border-radius */}
-        <div style={{ position: 'relative', overflow: 'hidden', minHeight: '400px' }}>
-          <IllustrationViewer
-            data={{
-              id: opportunity.id,
-              illustration_url: opportunity.illustration_url,
-              geography_tag: opportunity.naics_code ?? undefined,
-            }}
-            style={{
-              position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-            }}
+        {/* Left: Illustration — 3D building always on; ink-sketch overlays
+            on top when a processed photo exists, fading away on hover so the
+            user can preview the underlying procedural model. */}
+        <div
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          style={{
+            position: 'relative',
+            overflow: 'hidden',
+            minHeight: '400px',
+            background: '#FAF8F3',
+          }}
+        >
+          {/* Always-rendered 3D building — fills the panel */}
+          <BuildingPreview3D
+            opportunity={opportunity}
+            hovered={hovered}
+            size="hero"
+            showGrid
+            style={{ position: 'absolute', inset: 0 }}
           />
+
+          {/* Ink-sketch parallax overlay (when photo uploaded). Cross-fades
+              away on hover to reveal the 3D model underneath. */}
+          {hasPhoto && (mountOverlay || !hovered) && (
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                opacity: hovered ? 0 : 1,
+                transition: 'opacity 0.35s ease',
+                pointerEvents: hovered ? 'none' : 'auto',
+              }}
+            >
+              <IllustrationViewer
+                data={{
+                  id: opportunity.id,
+                  illustration_url: opportunity.illustration_url,
+                  geography_tag: opportunity.naics_code ?? undefined,
+                }}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                }}
+              />
+            </div>
+          )}
+
+          {/* Hint label when a photo is available */}
+          {hasPhoto && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
+                background: 'rgba(255,255,255,0.88)',
+                border: '1px solid var(--border)',
+                borderRadius: '3px',
+                padding: '4px 8px',
+                fontFamily: 'var(--font-body)',
+                fontSize: '10px',
+                fontWeight: 500,
+                color: 'var(--ink-tertiary)',
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase' as const,
+                pointerEvents: 'none',
+                opacity: hovered ? 0 : 1,
+                transition: 'opacity 0.2s ease',
+              }}
+            >
+              Hover for 3D
+            </div>
+          )}
+
+          {/* Upload Photo button */}
           {onUploadPhoto && (
             <button
               onClick={onUploadPhoto}

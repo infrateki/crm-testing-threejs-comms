@@ -388,7 +388,8 @@ export function OpportunityDetail() {
         <HeroSplitCard opportunity={opportunity} onUploadPhoto={() => navigate('/processor')} />
       )}
 
-      <StatsBar stats={stats} theme="cream" />
+      {/* Stats bar — only shown in edit mode (HeroSplitCard renders its own when not editing) */}
+      {editing && <StatsBar stats={stats} theme="cream" />}
 
       {/* Tabs */}
       <div style={{ borderBottom: '1px solid var(--border)', marginTop: '32px', display: 'flex' }}>
